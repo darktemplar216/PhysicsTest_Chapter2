@@ -15,9 +15,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "D4C8D5901E69B93C000A0351"
-               BuildableName = "TestFreeLicense.app"
-               BlueprintName = "TestFreeLicense"
-               ReferencedContainer = "container:TestFreeLicense.xcodeproj">
+               BuildableName = "PhysicsTest.app"
+               BlueprintName = "PhysicsTest"
+               ReferencedContainer = "container:PhysicsTest.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -33,9 +33,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "D4C8D5AD1E69B93C000A0351"
-               BuildableName = "TestFreeLicenseTests.xctest"
-               BlueprintName = "TestFreeLicenseTests"
-               ReferencedContainer = "container:TestFreeLicense.xcodeproj">
+               BuildableName = "PhysicsTestTests.xctest"
+               BlueprintName = "PhysicsTestTests"
+               ReferencedContainer = "container:PhysicsTest.xcodeproj">
             </BuildableReference>
          </TestableReference>
          <TestableReference
@@ -43,9 +43,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "D4C8D5B81E69B93C000A0351"
-               BuildableName = "TestFreeLicenseUITests.xctest"
-               BlueprintName = "TestFreeLicenseUITests"
-               ReferencedContainer = "container:TestFreeLicense.xcodeproj">
+               BuildableName = "PhysicsTestUITests.xctest"
+               BlueprintName = "PhysicsTestUITests"
+               ReferencedContainer = "container:PhysicsTest.xcodeproj">
             </BuildableReference>
          </TestableReference>
       </Testables>
@@ -53,9 +53,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "D4C8D5901E69B93C000A0351"
-            BuildableName = "TestFreeLicense.app"
-            BlueprintName = "TestFreeLicense"
-            ReferencedContainer = "container:TestFreeLicense.xcodeproj">
+            BuildableName = "PhysicsTest.app"
+            BlueprintName = "PhysicsTest"
+            ReferencedContainer = "container:PhysicsTest.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
       <AdditionalOptions>
@@ -76,9 +76,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "D4C8D5901E69B93C000A0351"
-            BuildableName = "TestFreeLicense.app"
-            BlueprintName = "TestFreeLicense"
-            ReferencedContainer = "container:TestFreeLicense.xcodeproj">
+            BuildableName = "PhysicsTest.app"
+            BlueprintName = "PhysicsTest"
+            ReferencedContainer = "container:PhysicsTest.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
       <AdditionalOptions>
@@ -95,9 +95,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "D4C8D5901E69B93C000A0351"
-            BuildableName = "TestFreeLicense.app"
-            BlueprintName = "TestFreeLicense"
-            ReferencedContainer = "container:TestFreeLicense.xcodeproj">
+            BuildableName = "PhysicsTest.app"
+            BlueprintName = "PhysicsTest"
+            ReferencedContainer = "container:PhysicsTest.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </ProfileAction>

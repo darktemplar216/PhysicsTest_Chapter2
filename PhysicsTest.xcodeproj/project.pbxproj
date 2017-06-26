@@ -7,11 +7,23 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		D428E7E41EDEE9E7002839FA /* ContactReport.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D428E7E21EDEE9E7002839FA /* ContactReport.cpp */; };
+		D428E7E71EDEEA8C002839FA /* G_GjkEpa.mm in Sources */ = {isa = PBXBuildFile; fileRef = D428E7E51EDEEA8C002839FA /* G_GjkEpa.mm */; };
+		D42A26021EDC4297001D200B /* Entity.mm in Sources */ = {isa = PBXBuildFile; fileRef = D42A26001EDC4297001D200B /* Entity.mm */; };
+		D42A26151EDC4D63001D200B /* RigidBody.mm in Sources */ = {isa = PBXBuildFile; fileRef = D42A26131EDC4D63001D200B /* RigidBody.mm */; };
+		D42A261F1EDC569A001D200B /* TestData.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D42A261E1EDC569A001D200B /* TestData.cpp */; };
+		D42A26251EDC7299001D200B /* VBO.mm in Sources */ = {isa = PBXBuildFile; fileRef = D42A26231EDC7299001D200B /* VBO.mm */; };
+		D42A26281EDC72B4001D200B /* ShaderProgram.mm in Sources */ = {isa = PBXBuildFile; fileRef = D42A26261EDC72B4001D200B /* ShaderProgram.mm */; };
+		D42A262B1EDC74D6001D200B /* RenderRoutine.mm in Sources */ = {isa = PBXBuildFile; fileRef = D42A26291EDC74D6001D200B /* RenderRoutine.mm */; };
+		D42A262E1EDC74E9001D200B /* PhysicsRoutine.mm in Sources */ = {isa = PBXBuildFile; fileRef = D42A262C1EDC74E9001D200B /* PhysicsRoutine.mm */; };
+		D42A26321EDC7530001D200B /* SceneMgr.mm in Sources */ = {isa = PBXBuildFile; fileRef = D42A26301EDC7530001D200B /* SceneMgr.mm */; };
+		D42A26351EDD6E7E001D200B /* GLKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D42A26341EDD6E7E001D200B /* GLKit.framework */; };
+		D42A26371EDEBFA7001D200B /* GMath.mm in Sources */ = {isa = PBXBuildFile; fileRef = D42A26361EDEBFA7001D200B /* GMath.mm */; };
 		D4C8D5961E69B93C000A0351 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = D4C8D5951E69B93C000A0351 /* main.m */; };
 		D4C8D5991E69B93C000A0351 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = D4C8D5981E69B93C000A0351 /* AppDelegate.m */; };
 		D4C8D59B1E69B93C000A0351 /* Shader.fsh in Resources */ = {isa = PBXBuildFile; fileRef = D4C8D59A1E69B93C000A0351 /* Shader.fsh */; };
 		D4C8D59D1E69B93C000A0351 /* Shader.vsh in Resources */ = {isa = PBXBuildFile; fileRef = D4C8D59C1E69B93C000A0351 /* Shader.vsh */; };
-		D4C8D5A01E69B93C000A0351 /* GameViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = D4C8D59F1E69B93C000A0351 /* GameViewController.m */; };
+		D4C8D5A01E69B93C000A0351 /* GameViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = D4C8D59F1E69B93C000A0351 /* GameViewController.mm */; };
 		D4C8D5A31E69B93C000A0351 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = D4C8D5A11E69B93C000A0351 /* Main.storyboard */; };
 		D4C8D5A51E69B93C000A0351 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D4C8D5A41E69B93C000A0351 /* Assets.xcassets */; };
 		D4C8D5A81E69B93C000A0351 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = D4C8D5A61E69B93C000A0351 /* LaunchScreen.storyboard */; };
@@ -37,22 +49,50 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		D4C8D5911E69B93C000A0351 /* TestFreeLicense.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TestFreeLicense.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		D428E7E21EDEE9E7002839FA /* ContactReport.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ContactReport.cpp; path = Physics/ContactReport.cpp; sourceTree = "<group>"; };
+		D428E7E31EDEE9E7002839FA /* ContactReport.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = ContactReport.hpp; path = Physics/ContactReport.hpp; sourceTree = "<group>"; };
+		D428E7E51EDEEA8C002839FA /* G_GjkEpa.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = G_GjkEpa.mm; path = Physics/G_GjkEpa.mm; sourceTree = "<group>"; };
+		D428E7E61EDEEA8C002839FA /* G_GjkEpa.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = G_GjkEpa.h; path = Physics/G_GjkEpa.h; sourceTree = "<group>"; };
+		D42A26001EDC4297001D200B /* Entity.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = Entity.mm; path = Logic/Entity.mm; sourceTree = "<group>"; };
+		D42A26011EDC4297001D200B /* Entity.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = Entity.hpp; path = Logic/Entity.hpp; sourceTree = "<group>"; };
+		D42A260E1EDC43F7001D200B /* G_CommonDef.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = G_CommonDef.h; path = Math/G_CommonDef.h; sourceTree = "<group>"; };
+		D42A260F1EDC4915001D200B /* GMath.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = GMath.h; path = Math/GMath.h; sourceTree = "<group>"; };
+		D42A26131EDC4D63001D200B /* RigidBody.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = RigidBody.mm; path = Physics/RigidBody.mm; sourceTree = "<group>"; };
+		D42A26141EDC4D63001D200B /* RigidBody.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = RigidBody.hpp; path = Physics/RigidBody.hpp; sourceTree = "<group>"; };
+		D42A261D1EDC55C3001D200B /* TestData.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = TestData.h; path = Data/TestData.h; sourceTree = "<group>"; };
+		D42A261E1EDC569A001D200B /* TestData.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = TestData.cpp; path = Data/TestData.cpp; sourceTree = "<group>"; };
+		D42A26231EDC7299001D200B /* VBO.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = VBO.mm; path = Renderer/VBO.mm; sourceTree = "<group>"; };
+		D42A26241EDC7299001D200B /* VBO.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = VBO.hpp; path = Renderer/VBO.hpp; sourceTree = "<group>"; };
+		D42A26261EDC72B4001D200B /* ShaderProgram.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = ShaderProgram.mm; path = Renderer/ShaderProgram.mm; sourceTree = "<group>"; };
+		D42A26271EDC72B4001D200B /* ShaderProgram.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = ShaderProgram.hpp; path = Renderer/ShaderProgram.hpp; sourceTree = "<group>"; };
+		D42A26291EDC74D6001D200B /* RenderRoutine.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = RenderRoutine.mm; path = Renderer/RenderRoutine.mm; sourceTree = "<group>"; };
+		D42A262A1EDC74D6001D200B /* RenderRoutine.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = RenderRoutine.hpp; path = Renderer/RenderRoutine.hpp; sourceTree = "<group>"; };
+		D42A262C1EDC74E9001D200B /* PhysicsRoutine.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = PhysicsRoutine.mm; path = Physics/PhysicsRoutine.mm; sourceTree = "<group>"; };
+		D42A262D1EDC74E9001D200B /* PhysicsRoutine.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = PhysicsRoutine.hpp; path = Physics/PhysicsRoutine.hpp; sourceTree = "<group>"; };
+		D42A26301EDC7530001D200B /* SceneMgr.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = SceneMgr.mm; path = Scene/SceneMgr.mm; sourceTree = "<group>"; };
+		D42A26311EDC7530001D200B /* SceneMgr.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = SceneMgr.hpp; path = Scene/SceneMgr.hpp; sourceTree = "<group>"; };
+		D42A26341EDD6E7E001D200B /* GLKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GLKit.framework; path = System/Library/Frameworks/GLKit.framework; sourceTree = SDKROOT; };
+		D42A26361EDEBFA7001D200B /* GMath.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = GMath.mm; path = Math/GMath.mm; sourceTree = "<group>"; };
+		D46218D81EE3EF6A004DAF84 /* Matrix4.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Matrix4.h; path = Math/Matrix4.h; sourceTree = "<group>"; };
+		D46218D91EE3EF6A004DAF84 /* Quaternion.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Quaternion.h; path = Math/Quaternion.h; sourceTree = "<group>"; };
+		D46218DA1EE3EF6A004DAF84 /* Vector3.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Vector3.h; path = Math/Vector3.h; sourceTree = "<group>"; };
+		D46218DB1EE3F411004DAF84 /* GMathCommon.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = GMathCommon.h; path = Math/GMathCommon.h; sourceTree = "<group>"; };
+		D4C8D5911E69B93C000A0351 /* PhysicsTest.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PhysicsTest.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		D4C8D5951E69B93C000A0351 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		D4C8D5971E69B93C000A0351 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		D4C8D5981E69B93C000A0351 /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
 		D4C8D59A1E69B93C000A0351 /* Shader.fsh */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.glsl; name = Shader.fsh; path = Shaders/Shader.fsh; sourceTree = "<group>"; };
 		D4C8D59C1E69B93C000A0351 /* Shader.vsh */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.glsl; name = Shader.vsh; path = Shaders/Shader.vsh; sourceTree = "<group>"; };
 		D4C8D59E1E69B93C000A0351 /* GameViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GameViewController.h; sourceTree = "<group>"; };
-		D4C8D59F1E69B93C000A0351 /* GameViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = GameViewController.m; sourceTree = "<group>"; };
+		D4C8D59F1E69B93C000A0351 /* GameViewController.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = GameViewController.mm; sourceTree = "<group>"; };
 		D4C8D5A21E69B93C000A0351 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		D4C8D5A41E69B93C000A0351 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		D4C8D5A71E69B93C000A0351 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		D4C8D5A91E69B93C000A0351 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		D4C8D5AE1E69B93C000A0351 /* TestFreeLicenseTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TestFreeLicenseTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		D4C8D5AE1E69B93C000A0351 /* PhysicsTestTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = PhysicsTestTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		D4C8D5B21E69B93C000A0351 /* TestFreeLicenseTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = TestFreeLicenseTests.m; sourceTree = "<group>"; };
 		D4C8D5B41E69B93C000A0351 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		D4C8D5B91E69B93C000A0351 /* TestFreeLicenseUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TestFreeLicenseUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		D4C8D5B91E69B93C000A0351 /* PhysicsTestUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = PhysicsTestUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		D4C8D5BD1E69B93C000A0351 /* TestFreeLicenseUITests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = TestFreeLicenseUITests.m; sourceTree = "<group>"; };
 		D4C8D5BF1E69B93C000A0351 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -62,6 +102,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D42A26351EDD6E7E001D200B /* GLKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -82,6 +123,83 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		D42A25F71EDC3923001D200B /* Renderer */ = {
+			isa = PBXGroup;
+			children = (
+				D42A26231EDC7299001D200B /* VBO.mm */,
+				D42A26241EDC7299001D200B /* VBO.hpp */,
+				D42A26261EDC72B4001D200B /* ShaderProgram.mm */,
+				D42A26271EDC72B4001D200B /* ShaderProgram.hpp */,
+				D42A26291EDC74D6001D200B /* RenderRoutine.mm */,
+				D42A262A1EDC74D6001D200B /* RenderRoutine.hpp */,
+			);
+			name = Renderer;
+			sourceTree = "<group>";
+		};
+		D42A25FB1EDC4215001D200B /* Logic */ = {
+			isa = PBXGroup;
+			children = (
+				D42A26001EDC4297001D200B /* Entity.mm */,
+				D42A26011EDC4297001D200B /* Entity.hpp */,
+			);
+			name = Logic;
+			sourceTree = "<group>";
+		};
+		D42A25FC1EDC4220001D200B /* Physics */ = {
+			isa = PBXGroup;
+			children = (
+				D428E7E51EDEEA8C002839FA /* G_GjkEpa.mm */,
+				D428E7E61EDEEA8C002839FA /* G_GjkEpa.h */,
+				D42A26131EDC4D63001D200B /* RigidBody.mm */,
+				D42A26141EDC4D63001D200B /* RigidBody.hpp */,
+				D42A262C1EDC74E9001D200B /* PhysicsRoutine.mm */,
+				D42A262D1EDC74E9001D200B /* PhysicsRoutine.hpp */,
+				D428E7E21EDEE9E7002839FA /* ContactReport.cpp */,
+				D428E7E31EDEE9E7002839FA /* ContactReport.hpp */,
+			);
+			name = Physics;
+			sourceTree = "<group>";
+		};
+		D42A26031EDC42BA001D200B /* Math */ = {
+			isa = PBXGroup;
+			children = (
+				D46218D81EE3EF6A004DAF84 /* Matrix4.h */,
+				D46218D91EE3EF6A004DAF84 /* Quaternion.h */,
+				D46218DA1EE3EF6A004DAF84 /* Vector3.h */,
+				D42A260E1EDC43F7001D200B /* G_CommonDef.h */,
+				D42A260F1EDC4915001D200B /* GMath.h */,
+				D42A26361EDEBFA7001D200B /* GMath.mm */,
+				D46218DB1EE3F411004DAF84 /* GMathCommon.h */,
+			);
+			name = Math;
+			sourceTree = "<group>";
+		};
+		D42A261C1EDC55A4001D200B /* Data */ = {
+			isa = PBXGroup;
+			children = (
+				D42A261D1EDC55C3001D200B /* TestData.h */,
+				D42A261E1EDC569A001D200B /* TestData.cpp */,
+			);
+			name = Data;
+			sourceTree = "<group>";
+		};
+		D42A262F1EDC7511001D200B /* Scene */ = {
+			isa = PBXGroup;
+			children = (
+				D42A26301EDC7530001D200B /* SceneMgr.mm */,
+				D42A26311EDC7530001D200B /* SceneMgr.hpp */,
+			);
+			name = Scene;
+			sourceTree = "<group>";
+		};
+		D42A26331EDD6E7E001D200B /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				D42A26341EDD6E7E001D200B /* GLKit.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 		D4C8D5881E69B93B000A0351 = {
 			isa = PBXGroup;
 			children = (
@@ -89,15 +207,16 @@
 				D4C8D5B11E69B93C000A0351 /* TestFreeLicenseTests */,
 				D4C8D5BC1E69B93C000A0351 /* TestFreeLicenseUITests */,
 				D4C8D5921E69B93C000A0351 /* Products */,
+				D42A26331EDD6E7E001D200B /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
 		D4C8D5921E69B93C000A0351 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				D4C8D5911E69B93C000A0351 /* TestFreeLicense.app */,
-				D4C8D5AE1E69B93C000A0351 /* TestFreeLicenseTests.xctest */,
-				D4C8D5B91E69B93C000A0351 /* TestFreeLicenseUITests.xctest */,
+				D4C8D5911E69B93C000A0351 /* PhysicsTest.app */,
+				D4C8D5AE1E69B93C000A0351 /* PhysicsTestTests.xctest */,
+				D4C8D5B91E69B93C000A0351 /* PhysicsTestUITests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -105,12 +224,18 @@
 		D4C8D5931E69B93C000A0351 /* TestFreeLicense */ = {
 			isa = PBXGroup;
 			children = (
-				D4C8D5971E69B93C000A0351 /* AppDelegate.h */,
-				D4C8D5981E69B93C000A0351 /* AppDelegate.m */,
+				D42A262F1EDC7511001D200B /* Scene */,
+				D42A261C1EDC55A4001D200B /* Data */,
+				D42A26031EDC42BA001D200B /* Math */,
+				D42A25FC1EDC4220001D200B /* Physics */,
+				D42A25FB1EDC4215001D200B /* Logic */,
+				D42A25F71EDC3923001D200B /* Renderer */,
 				D4C8D59A1E69B93C000A0351 /* Shader.fsh */,
 				D4C8D59C1E69B93C000A0351 /* Shader.vsh */,
+				D4C8D5971E69B93C000A0351 /* AppDelegate.h */,
+				D4C8D5981E69B93C000A0351 /* AppDelegate.m */,
 				D4C8D59E1E69B93C000A0351 /* GameViewController.h */,
-				D4C8D59F1E69B93C000A0351 /* GameViewController.m */,
+				D4C8D59F1E69B93C000A0351 /* GameViewController.mm */,
 				D4C8D5A11E69B93C000A0351 /* Main.storyboard */,
 				D4C8D5A41E69B93C000A0351 /* Assets.xcassets */,
 				D4C8D5A61E69B93C000A0351 /* LaunchScreen.storyboard */,
@@ -149,9 +274,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		D4C8D5901E69B93C000A0351 /* TestFreeLicense */ = {
+		D4C8D5901E69B93C000A0351 /* PhysicsTest */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = D4C8D5C21E69B93C000A0351 /* Build configuration list for PBXNativeTarget "TestFreeLicense" */;
+			buildConfigurationList = D4C8D5C21E69B93C000A0351 /* Build configuration list for PBXNativeTarget "PhysicsTest" */;
 			buildPhases = (
 				D4C8D58D1E69B93C000A0351 /* Sources */,
 				D4C8D58E1E69B93C000A0351 /* Frameworks */,
@@ -161,14 +286,14 @@
 			);
 			dependencies = (
 			);
-			name = TestFreeLicense;
+			name = PhysicsTest;
 			productName = TestFreeLicense;
-			productReference = D4C8D5911E69B93C000A0351 /* TestFreeLicense.app */;
+			productReference = D4C8D5911E69B93C000A0351 /* PhysicsTest.app */;
 			productType = "com.apple.product-type.application";
 		};
-		D4C8D5AD1E69B93C000A0351 /* TestFreeLicenseTests */ = {
+		D4C8D5AD1E69B93C000A0351 /* PhysicsTestTests */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = D4C8D5C51E69B93C000A0351 /* Build configuration list for PBXNativeTarget "TestFreeLicenseTests" */;
+			buildConfigurationList = D4C8D5C51E69B93C000A0351 /* Build configuration list for PBXNativeTarget "PhysicsTestTests" */;
 			buildPhases = (
 				D4C8D5AA1E69B93C000A0351 /* Sources */,
 				D4C8D5AB1E69B93C000A0351 /* Frameworks */,
@@ -179,14 +304,14 @@
 			dependencies = (
 				D4C8D5B01E69B93C000A0351 /* PBXTargetDependency */,
 			);
-			name = TestFreeLicenseTests;
+			name = PhysicsTestTests;
 			productName = TestFreeLicenseTests;
-			productReference = D4C8D5AE1E69B93C000A0351 /* TestFreeLicenseTests.xctest */;
+			productReference = D4C8D5AE1E69B93C000A0351 /* PhysicsTestTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
-		D4C8D5B81E69B93C000A0351 /* TestFreeLicenseUITests */ = {
+		D4C8D5B81E69B93C000A0351 /* PhysicsTestUITests */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = D4C8D5C81E69B93C000A0351 /* Build configuration list for PBXNativeTarget "TestFreeLicenseUITests" */;
+			buildConfigurationList = D4C8D5C81E69B93C000A0351 /* Build configuration list for PBXNativeTarget "PhysicsTestUITests" */;
 			buildPhases = (
 				D4C8D5B51E69B93C000A0351 /* Sources */,
 				D4C8D5B61E69B93C000A0351 /* Frameworks */,
@@ -197,9 +322,9 @@
 			dependencies = (
 				D4C8D5BB1E69B93C000A0351 /* PBXTargetDependency */,
 			);
-			name = TestFreeLicenseUITests;
+			name = PhysicsTestUITests;
 			productName = TestFreeLicenseUITests;
-			productReference = D4C8D5B91E69B93C000A0351 /* TestFreeLicenseUITests.xctest */;
+			productReference = D4C8D5B91E69B93C000A0351 /* PhysicsTestUITests.xctest */;
 			productType = "com.apple.product-type.bundle.ui-testing";
 		};
 /* End PBXNativeTarget section */
@@ -213,6 +338,7 @@
 				TargetAttributes = {
 					D4C8D5901E69B93C000A0351 = {
 						CreatedOnToolsVersion = 8.2.1;
+						DevelopmentTeam = Q69CDY35WR;
 						ProvisioningStyle = Automatic;
 					};
 					D4C8D5AD1E69B93C000A0351 = {
@@ -227,7 +353,7 @@
 					};
 				};
 			};
-			buildConfigurationList = D4C8D58C1E69B93B000A0351 /* Build configuration list for PBXProject "TestFreeLicense" */;
+			buildConfigurationList = D4C8D58C1E69B93B000A0351 /* Build configuration list for PBXProject "PhysicsTest" */;
 			compatibilityVersion = "Xcode 3.2";
 			developmentRegion = English;
 			hasScannedForEncodings = 0;
@@ -240,9 +366,9 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				D4C8D5901E69B93C000A0351 /* TestFreeLicense */,
-				D4C8D5AD1E69B93C000A0351 /* TestFreeLicenseTests */,
-				D4C8D5B81E69B93C000A0351 /* TestFreeLicenseUITests */,
+				D4C8D5901E69B93C000A0351 /* PhysicsTest */,
+				D4C8D5AD1E69B93C000A0351 /* PhysicsTestTests */,
+				D4C8D5B81E69B93C000A0351 /* PhysicsTestUITests */,
 			);
 		};
 /* End PBXProject section */
@@ -281,8 +407,19 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D42A262B1EDC74D6001D200B /* RenderRoutine.mm in Sources */,
+				D42A261F1EDC569A001D200B /* TestData.cpp in Sources */,
+				D42A26251EDC7299001D200B /* VBO.mm in Sources */,
 				D4C8D5991E69B93C000A0351 /* AppDelegate.m in Sources */,
-				D4C8D5A01E69B93C000A0351 /* GameViewController.m in Sources */,
+				D42A26321EDC7530001D200B /* SceneMgr.mm in Sources */,
+				D428E7E71EDEEA8C002839FA /* G_GjkEpa.mm in Sources */,
+				D42A26371EDEBFA7001D200B /* GMath.mm in Sources */,
+				D4C8D5A01E69B93C000A0351 /* GameViewController.mm in Sources */,
+				D42A262E1EDC74E9001D200B /* PhysicsRoutine.mm in Sources */,
+				D428E7E41EDEE9E7002839FA /* ContactReport.cpp in Sources */,
+				D42A26151EDC4D63001D200B /* RigidBody.mm in Sources */,
+				D42A26281EDC72B4001D200B /* ShaderProgram.mm in Sources */,
+				D42A26021EDC4297001D200B /* Entity.mm in Sources */,
 				D4C8D5961E69B93C000A0351 /* main.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -308,12 +445,12 @@
 /* Begin PBXTargetDependency section */
 		D4C8D5B01E69B93C000A0351 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = D4C8D5901E69B93C000A0351 /* TestFreeLicense */;
+			target = D4C8D5901E69B93C000A0351 /* PhysicsTest */;
 			targetProxy = D4C8D5AF1E69B93C000A0351 /* PBXContainerItemProxy */;
 		};
 		D4C8D5BB1E69B93C000A0351 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = D4C8D5901E69B93C000A0351 /* TestFreeLicense */;
+			target = D4C8D5901E69B93C000A0351 /* PhysicsTest */;
 			targetProxy = D4C8D5BA1E69B93C000A0351 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
@@ -432,10 +569,13 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				DEVELOPMENT_TEAM = Q69CDY35WR;
 				INFOPLIST_FILE = TestFreeLicense/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.mygae.TestFreeLicense;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 			};
 			name = Debug;
 		};
@@ -443,10 +583,13 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				DEVELOPMENT_TEAM = Q69CDY35WR;
 				INFOPLIST_FILE = TestFreeLicense/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.mygae.TestFreeLicense;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 			};
 			name = Release;
 		};
@@ -458,7 +601,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.mygae.TestFreeLicenseTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/TestFreeLicense.app/TestFreeLicense";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/PhysicsTest.app/PhysicsTest";
 			};
 			name = Debug;
 		};
@@ -470,7 +613,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.mygae.TestFreeLicenseTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/TestFreeLicense.app/TestFreeLicense";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/PhysicsTest.app/PhysicsTest";
 			};
 			name = Release;
 		};
@@ -499,7 +642,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		D4C8D58C1E69B93B000A0351 /* Build configuration list for PBXProject "TestFreeLicense" */ = {
+		D4C8D58C1E69B93B000A0351 /* Build configuration list for PBXProject "PhysicsTest" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				D4C8D5C01E69B93C000A0351 /* Debug */,
@@ -508,29 +651,32 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		D4C8D5C21E69B93C000A0351 /* Build configuration list for PBXNativeTarget "TestFreeLicense" */ = {
+		D4C8D5C21E69B93C000A0351 /* Build configuration list for PBXNativeTarget "PhysicsTest" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				D4C8D5C31E69B93C000A0351 /* Debug */,
 				D4C8D5C41E69B93C000A0351 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
-		D4C8D5C51E69B93C000A0351 /* Build configuration list for PBXNativeTarget "TestFreeLicenseTests" */ = {
+		D4C8D5C51E69B93C000A0351 /* Build configuration list for PBXNativeTarget "PhysicsTestTests" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				D4C8D5C61E69B93C000A0351 /* Debug */,
 				D4C8D5C71E69B93C000A0351 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
-		D4C8D5C81E69B93C000A0351 /* Build configuration list for PBXNativeTarget "TestFreeLicenseUITests" */ = {
+		D4C8D5C81E69B93C000A0351 /* Build configuration list for PBXNativeTarget "PhysicsTestUITests" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				D4C8D5C91E69B93C000A0351 /* Debug */,
 				D4C8D5CA1E69B93C000A0351 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};

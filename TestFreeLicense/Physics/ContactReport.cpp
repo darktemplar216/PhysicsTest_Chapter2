@@ -9,6 +9,13 @@
 #include "ContactReport.hpp"
 #include "Entity.hpp"
 
+Vector3 ContactPoint::GetGlobalNormalB2A(RigidDataIndex dataIndex)
+{
+    const RigidData& rigidDataB = entityB->rigidBody->datas[dataIndex];
+    Matrix4 localToWorldB = rigidDataB.rotation.matrix();
+    return localToWorldB * localNormalInBSpace;
+}
+
 void ContactManifold::UpdateContacts(RigidDataIndex dataIndex)
 {
     for(int i=0; i<contactPointCount; i++)
@@ -23,11 +30,12 @@ void ContactManifold::UpdateContacts(RigidDataIndex dataIndex)
         
         Vector3 curGlobalContactPointA = localToWorldA * point.localWittnessPointA;
         Vector3 curGlobalContactPointB = localToWorldB * point.localWittnessPointB;
+        Vector3 curGlobalNormal = point.GetGlobalNormalB2A(dataIndex);
         
         float disBetweenCurAndOldA = (curGlobalContactPointA -  point.globalWittnessPointA).lengthSquared();
         float disBetweenCurAndOldB = (curGlobalContactPointB -  point.globalWittnessPointB).lengthSquared();
         
-        bool isStillPenetrating = (curGlobalContactPointA - curGlobalContactPointB).dot(point.normal) < 0;
+        bool isStillPenetrating = (curGlobalContactPointA - curGlobalContactPointB).dot(curGlobalNormal) < 0;
         
         if(!isStillPenetrating
            || disBetweenCurAndOldA > CONTACT_DRIFTING_THRESHOLD
@@ -62,13 +70,13 @@ void ContactManifold::TryToAddNewContact(RigidDataIndex dataIndex,
         const RigidData& rigidDataA = entityA->rigidBody->datas[dataIndex];
         const RigidData& rigidDataB = entityB->rigidBody->datas[dataIndex];
         
-        newCPoint.localWittnessPointA = rigidDataA.MakeTransMatrix().inverse() * newCPoint.globalWittnessPointA;
-        newCPoint.localWittnessPointB = rigidDataB.MakeTransMatrix().inverse() * newCPoint.globalWittnessPointB;
+        Matrix4 localToGlobalTransA = rigidDataA.MakeTransMatrix().inverse();
+        newCPoint.localWittnessPointA = localToGlobalTransA * newCPoint.globalWittnessPointA;
+        Matrix4 localToGlobalTransB = rigidDataB.MakeTransMatrix().inverse();
+        newCPoint.localWittnessPointB = localToGlobalTransB * newCPoint.globalWittnessPointB;
         
-        //normal point from b -> a//
-        newCPoint.normal = result.normal;
-        //let negativeNormal point from a -> b//
-        newCPoint.negativeNormal = -result.normal;
+        //normal point from b -> a in local space of b//
+        newCPoint.localNormalInBSpace = rigidDataB.rotation.matrix().inverse() * result.normal;
         newCPoint.tangent = sVec3Zero;
         newCPoint.tangent2 = sVec3Zero;
         

@@ -56,12 +56,16 @@ private:
     void InitRoutine();
     void UpdateVelocities(double deltaTime, RigidDataIndex from, RigidDataIndex to);
     void UpdateManifolds(RigidDataIndex dataIndex);
-    void WarmStart(double deltaTime, RigidDataIndex dataIndex);
-    void HandleContacts(double deltaTime, RigidDataIndex from, RigidDataIndex to);
+    void WarmStart(double deltaTime, RigidDataIndex from, RigidDataIndex to);
     void UpdatePosAndRots(double deltaTime, RigidDataIndex from, RigidDataIndex to);
     
-    void HandleContact(RigidDataIndex to, ContactPoint& contact, double deltaTime);
-    void WarmContact(RigidDataIndex to, ContactPoint& contact, double deltaTime);
+    void HandleVelocityConstraints(double deltaTime, RigidDataIndex from, RigidDataIndex to);
+    void HandlePositionConstraints(double deltaTime, RigidDataIndex from, RigidDataIndex to);
+    
+private:
+    void HandleContactForVelocityConstraints(RigidDataIndex from, RigidDataIndex to, ContactPoint& contact, double deltaTime);
+    void HandleContactForPositionConstraints(RigidDataIndex from, RigidDataIndex to, ContactPoint& contact, double deltaTime);
+    void WarmContact(RigidDataIndex from, RigidDataIndex to, ContactPoint& contact, double deltaTime);
 };
 
 

@@ -31,10 +31,8 @@ public:
     Vector3 globalWittnessPointA;
     //B物体的碰撞点在在世界坐标系下的位置//
     Vector3 globalWittnessPointB;
-    //碰撞法线，B指向A//
-    Vector3 normal;
-    //碰撞法线，A指向B//
-    Vector3 negativeNormal;
+    //基于物体B局部坐标系的法线//
+    Vector3 localNormalInBSpace;
     //碰撞切线1，摩擦力的方向//
     Vector3 tangent;
     //碰撞切线2，摩擦力2的方向//
@@ -48,6 +46,8 @@ public:
     //切线2方向上的总碰撞冲量//
     float totalTangentImpulse2;
     
+    //获得世界坐标系下的法线方向//
+    Vector3 GetGlobalNormalB2A(RigidDataIndex dataIndex);
 };
 
 class ContactManifold

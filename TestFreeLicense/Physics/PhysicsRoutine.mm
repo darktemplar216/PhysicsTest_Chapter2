@@ -140,12 +140,17 @@ void PhysicsRoutine::Update(double deltaTime, long frame)
     UpdateManifolds(RDI_real);
     
     //用于增加稳定性//
-    WarmStart(deltaTime, RDI_real);
+    WarmStart(deltaTime, RDI_real, RDI_real);
     
     //处理所有的碰撞，迭代多次，求得稳定的结果//
     for(int i=0; i < 10; i++)
     {
-        HandleContacts(deltaTime, RDI_real, RDI_real);
+        HandleVelocityConstraints(deltaTime, RDI_real, RDI_real);
+    }
+    
+    for(int i=0; i < 3; i++)
+    {
+        HandlePositionConstraints(deltaTime, RDI_real, RDI_real);
     }
     
     //更新物体的位置信息//
@@ -204,7 +209,7 @@ void PhysicsRoutine::Finalize(double deltaTime, RigidDataIndex from, RigidDataIn
     }
 }
 
-void PhysicsRoutine::HandleContact(RigidDataIndex to, ContactPoint& contact, double deltaTime)
+void PhysicsRoutine::HandleContactForVelocityConstraints(RigidDataIndex from, RigidDataIndex to, ContactPoint& contact, double deltaTime)
 {
     Entity* entityA = contact.entityA;
     RigidBody* rigidBodyA = entityA->rigidBody;
@@ -217,7 +222,7 @@ void PhysicsRoutine::HandleContact(RigidDataIndex to, ContactPoint& contact, dou
     if(((rigidBodyA->isStatic | dataA.isDormant) & (rigidBodyB->isStatic | dataB.isDormant)) == false)
     {
         //let normal point from a -> b
-        Vector3 normal = contact.negativeNormal;
+        Vector3 normal = - contact.GetGlobalNormalB2A(from);
         
         Vector3 relativePosA = contact.globalWittnessPointA - dataA.position;
         Vector3 relativePosB = contact.globalWittnessPointB - dataB.position;
@@ -238,9 +243,9 @@ void PhysicsRoutine::HandleContact(RigidDataIndex to, ContactPoint& contact, dou
         
         float collisionImpulseValA = (relativePosA * normal).dot(rigidBodyA->inertiaInverse.transform3x3(relativePosA * normal));
         float collisionImpulseValB = (relativePosB * normal).dot(rigidBodyB->inertiaInverse.transform3x3(relativePosB * normal));
-        float collisionImpulseVal = -(1.000f + combinedImpulseCoefficient + biasPenetrationDepth) *
-        relativeVelocity.dot(normal) /
-        (rigidBodyA->oneDivMass + rigidBodyB->oneDivMass + collisionImpulseValA + collisionImpulseValB);
+        float collisionImpulseVal = -(1.000f + combinedImpulseCoefficient + biasPenetrationDepth) * relativeVelocity.dot(normal) /
+                                        (rigidBodyA->oneDivMass + rigidBodyB->oneDivMass + collisionImpulseValA + collisionImpulseValB);
+
         float newImpulse = fmax(contact.totalNormalImpulse + collisionImpulseVal, 0.0f);
         collisionImpulseVal = newImpulse - contact.totalNormalImpulse;
         contact.totalNormalImpulse = newImpulse;
@@ -293,7 +298,28 @@ void PhysicsRoutine::HandleContact(RigidDataIndex to, ContactPoint& contact, dou
     }
 }
 
-void PhysicsRoutine::WarmContact(RigidDataIndex to, ContactPoint& contact, double deltaTime)
+void PhysicsRoutine::HandleContactForPositionConstraints(RigidDataIndex from, RigidDataIndex to, ContactPoint& contact, double deltaTime)
+{
+    Entity* entityA = contact.entityA;
+    RigidBody* rigidBodyA = entityA->rigidBody;
+    RigidData& dataA = rigidBodyA->datas[to];
+    
+    Entity* entityB = contact.entityB;
+    RigidBody* rigidBodyB = entityB->rigidBody;
+    RigidData& dataB = rigidBodyB->datas[to];
+    
+    if(((rigidBodyA->isStatic | dataA.isDormant) & (rigidBodyB->isStatic | dataB.isDormant)) == false)
+    {
+        //let normal point from a -> b
+        //Vector3 normal = contact.negativeNormal;
+        
+        
+        
+        
+    }
+}
+
+void PhysicsRoutine::WarmContact(RigidDataIndex from, RigidDataIndex to, ContactPoint& contact, double deltaTime)
 {
     Entity* entityA = contact.entityA;
     RigidBody* rigidBodyA = entityA->rigidBody;
@@ -304,7 +330,7 @@ void PhysicsRoutine::WarmContact(RigidDataIndex to, ContactPoint& contact, doubl
     RigidData& dataB = rigidBodyB->datas[to];
     
     //let normal point from a -> b
-    Vector3 normal = contact.negativeNormal;
+    Vector3 normal = - contact.GetGlobalNormalB2A(from);
     
     Vector3 relativePosA = contact.globalWittnessPointA - dataA.position;
     Vector3 relativePosB = contact.globalWittnessPointB - dataB.position;
@@ -462,7 +488,7 @@ void PhysicsRoutine::UpdateManifolds(RigidDataIndex dataIndex)
     }
 }
 
-void PhysicsRoutine::WarmStart(double deltaTime, RigidDataIndex dataIndex)
+void PhysicsRoutine::WarmStart(double deltaTime, RigidDataIndex from, RigidDataIndex to)
 {
     std::list<ContactManifold*>::iterator iterBegin = manifolds.begin();
     std::list<ContactManifold*>::iterator iterEnd = manifolds.end();
@@ -471,13 +497,13 @@ void PhysicsRoutine::WarmStart(double deltaTime, RigidDataIndex dataIndex)
         ContactManifold* manifold = *iterBegin;
         for(int i=0; i<manifold->contactPointCount; i++)
         {
-            WarmContact(dataIndex, manifold->contactPoints[i], deltaTime);
+            WarmContact(from, to, manifold->contactPoints[i], deltaTime);
         }
         iterBegin++;
     }
 }
 
-void PhysicsRoutine::HandleContacts(double deltaTime, RigidDataIndex from, RigidDataIndex to)
+void PhysicsRoutine::HandleVelocityConstraints(double deltaTime, RigidDataIndex from, RigidDataIndex to)
 {
     std::list<ContactManifold*>::iterator iterColRepBegin = manifolds.begin();
     std::list<ContactManifold*>::iterator iterColRepEnd = manifolds.end();
@@ -487,7 +513,24 @@ void PhysicsRoutine::HandleContacts(double deltaTime, RigidDataIndex from, Rigid
         
         for(int i=0; i<manifold->contactPointCount; i++)
         {
-            HandleContact(to, manifold->contactPoints[i], deltaTime);
+            HandleContactForVelocityConstraints(from, to, manifold->contactPoints[i], deltaTime);
+        }
+        
+        iterColRepBegin++;
+    }
+}
+
+void PhysicsRoutine::HandlePositionConstraints(double deltaTime, RigidDataIndex from, RigidDataIndex to)
+{
+    std::list<ContactManifold*>::iterator iterColRepBegin = manifolds.begin();
+    std::list<ContactManifold*>::iterator iterColRepEnd = manifolds.end();
+    while(iterColRepBegin != iterColRepEnd)
+    {
+        ContactManifold* manifold = *iterColRepBegin;
+        
+        for(int i=0; i<manifold->contactPointCount; i++)
+        {
+            HandleContactForPositionConstraints(from, to, manifold->contactPoints[i], deltaTime);
         }
         
         iterColRepBegin++;

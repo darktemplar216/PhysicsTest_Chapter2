@@ -38,8 +38,6 @@ public:
     bool isDormant = false;
     
     Matrix4 MakeTransMatrix() const;
-    
-    bool CheckIfCanbeDormant();
 };
 
 class PointCloud
@@ -103,6 +101,8 @@ public:
     RigidData datas[RDI_count];
 
     void CalculateEnergy(RigidData& data);
+    
+    bool CheckIfCanbeDormant(RigidDataIndex dataIndex);
     
     void SetPhysicallParams(bool inIsStatic, float inMass, const Matrix4& inInertia, float inLinearFrictionCoefficient);
     

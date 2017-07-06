@@ -43,6 +43,7 @@ public:
     
     void RemoveRelatedManifold(Entity* entity);
     void AddOrUpdateManifold(btGjkEpaSolver2::sResults& resf, RigidDataIndex dataIndex, Entity* entityA, Entity* entityB);
+    bool FindAllMyManifolds(const RigidBody* me, std::list<const ContactManifold*>& relatedManifolds);
     
 public:
     void Update(double deltaTime, long frame);
@@ -56,7 +57,7 @@ private:
     void InitRoutine();
     void UpdateVelocities(double deltaTime, RigidDataIndex from, RigidDataIndex to);
     void UpdateManifolds(RigidDataIndex dataIndex);
-    void WarmStart(double deltaTime, RigidDataIndex from, RigidDataIndex to);
+    void WarmStart(double deltaTime, RigidDataIndex dataIndex);
     void UpdatePosAndRots(double deltaTime, RigidDataIndex from, RigidDataIndex to);
     
     void HandleVelocityConstraints(double deltaTime, RigidDataIndex from, RigidDataIndex to);
@@ -65,7 +66,7 @@ private:
 private:
     void HandleContactForVelocityConstraints(RigidDataIndex from, RigidDataIndex to, ContactPoint& contact, double deltaTime);
     void HandleContactForPositionConstraints(RigidDataIndex from, RigidDataIndex to, ContactPoint& contact, double deltaTime);
-    void WarmContact(RigidDataIndex from, RigidDataIndex to, ContactPoint& contact, double deltaTime);
+    void WarmContact(RigidDataIndex dataIndex, ContactPoint& contact, double deltaTime);
 };
 
 

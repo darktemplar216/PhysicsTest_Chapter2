@@ -11,9 +11,7 @@
 
 Vector3 ContactPoint::GetGlobalNormalB2A(RigidDataIndex dataIndex)
 {
-    const RigidData& rigidDataB = entityB->rigidBody->datas[dataIndex];
-    Matrix4 localToWorldB = rigidDataB.rotation.matrix();
-    return localToWorldB * localNormalInBSpace;
+    return rigidBodyB->datas[dataIndex].rotation.matrix() * localNormalInBSpace;
 }
 
 void ContactManifold::UpdateContacts(RigidDataIndex dataIndex)
@@ -21,21 +19,20 @@ void ContactManifold::UpdateContacts(RigidDataIndex dataIndex)
     for(int i=0; i<contactPointCount; i++)
     {
         ContactPoint& point = contactPoints[i];
+
+        Matrix4 localToWorldA = point.rigidBodyA->datas[dataIndex].MakeTransMatrix();
+        Matrix4 localToWorldB = point.rigidBodyB->datas[dataIndex].MakeTransMatrix();
         
-        const RigidData& rigidDataA = point.entityA->rigidBody->datas[dataIndex];
-        const RigidData& rigidDataB = point.entityB->rigidBody->datas[dataIndex];
+        point.globalWittnessPointA = localToWorldA * point.localWittnessPointA;
+        point.globalWittnessPointB = localToWorldB * point.localWittnessPointB;
         
-        Matrix4 localToWorldA = rigidDataA.MakeTransMatrix();
-        Matrix4 localToWorldB = rigidDataB.MakeTransMatrix();
+        Vector3 globalNormalB2A = point.GetGlobalNormalB2A(dataIndex);
         
-        Vector3 curGlobalContactPointA = localToWorldA * point.localWittnessPointA;
-        Vector3 curGlobalContactPointB = localToWorldB * point.localWittnessPointB;
-        Vector3 curGlobalNormal = point.GetGlobalNormalB2A(dataIndex);
+        point.penetrationDistance = (point.globalWittnessPointA - point.globalWittnessPointB).dot(globalNormalB2A);
         
-        float disBetweenCurAndOldA = (curGlobalContactPointA -  point.globalWittnessPointA).lengthSquared();
-        float disBetweenCurAndOldB = (curGlobalContactPointB -  point.globalWittnessPointB).lengthSquared();
-        
-        bool isStillPenetrating = (curGlobalContactPointA - curGlobalContactPointB).dot(curGlobalNormal) < 0;
+        bool isStillPenetrating = point.penetrationDistance < 0;
+        float disBetweenCurAndOldA = (point.globalWittnessPointA -  point.originalGlobalWittnessPointA).lengthSquared();
+        float disBetweenCurAndOldB = (point.globalWittnessPointB -  point.originalGlobalWittnessPointB).lengthSquared();
         
         if(!isStillPenetrating
            || disBetweenCurAndOldA > CONTACT_DRIFTING_THRESHOLD
@@ -51,8 +48,8 @@ void ContactManifold::UpdateContacts(RigidDataIndex dataIndex)
 }
 
 void ContactManifold::TryToAddNewContact(RigidDataIndex dataIndex,
-                                         Entity* entityA,
-                                         Entity* entityB,
+                                         RigidBody* rigidBodyA,
+                                         RigidBody* rigidBodyB,
                                          const btGjkEpaSolver2::sResults& result)
 {
     if(IfShouldAddNewContactPoint(dataIndex, result))
@@ -60,15 +57,18 @@ void ContactManifold::TryToAddNewContact(RigidDataIndex dataIndex,
         ContactPoint newCPoint;
         memset(&newCPoint, 0, sizeof(ContactPoint));
         
-        newCPoint.entityA = entityA;
-        newCPoint.entityB = entityB;
+        newCPoint.rigidBodyA = rigidBodyA;
+        newCPoint.rigidBodyB = rigidBodyB;
         
         //newCPoint.result = result;
         newCPoint.globalWittnessPointA = result.witnesses[0];
         newCPoint.globalWittnessPointB = result.witnesses[1];
         
-        const RigidData& rigidDataA = entityA->rigidBody->datas[dataIndex];
-        const RigidData& rigidDataB = entityB->rigidBody->datas[dataIndex];
+        newCPoint.originalGlobalWittnessPointA = result.witnesses[0];
+        newCPoint.originalGlobalWittnessPointB = result.witnesses[1];
+        
+        const RigidData& rigidDataA = newCPoint.rigidBodyA->datas[dataIndex];
+        const RigidData& rigidDataB = newCPoint.rigidBodyB->datas[dataIndex];
         
         Matrix4 localToGlobalTransA = rigidDataA.MakeTransMatrix().inverse();
         newCPoint.localWittnessPointA = localToGlobalTransA * newCPoint.globalWittnessPointA;

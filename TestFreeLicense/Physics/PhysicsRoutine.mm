@@ -79,7 +79,7 @@ void PhysicsRoutine::RemoveRelatedManifold(Entity* entity)
     std::list<ContactManifold*>::iterator iterEnd = manifolds.end();
     while(iterBegin != iterEnd)
     {
-        if((*iterBegin)->entityA == entity || (*iterBegin)->entityB == entity)
+        if((*iterBegin)->rigidBodyA == entity->rigidBody || (*iterBegin)->rigidBodyB == entity->rigidBody)
         {
             delete *iterBegin;
             *iterBegin = 0;
@@ -99,8 +99,8 @@ void PhysicsRoutine::AddOrUpdateManifold(btGjkEpaSolver2::sResults& resf, RigidD
     while(iterBegin != iterEnd)
     {
         ContactManifold* curManifold = *iterBegin;
-        if((curManifold->entityA == entityA && curManifold->entityB == entityB)
-           || (curManifold->entityB == entityA && curManifold->entityA == entityB))
+        if((curManifold->rigidBodyA == entityA->rigidBody && curManifold->rigidBodyB == entityB->rigidBody)
+           || (curManifold->rigidBodyB == entityA->rigidBody && curManifold->rigidBodyA == entityB->rigidBody))
         {
             manifold = curManifold;
             break;
@@ -111,14 +111,14 @@ void PhysicsRoutine::AddOrUpdateManifold(btGjkEpaSolver2::sResults& resf, RigidD
     if(manifold == 0)
     {
         manifold = new ContactManifold();
-        manifold->entityA = entityA;
-        manifold->entityB = entityB;
+        manifold->rigidBodyA = entityA->rigidBody;
+        manifold->rigidBodyB = entityB->rigidBody;
         manifolds.push_back(manifold);
     }
     
     if(manifold != 0)
     {
-        manifold->TryToAddNewContact(dataIndex, entityA, entityB, resf);
+        manifold->TryToAddNewContact(dataIndex, entityA->rigidBody, entityB->rigidBody, resf);
     }
 }
 
@@ -139,7 +139,7 @@ void PhysicsRoutine::Update(double deltaTime, long frame)
     UpdateManifolds(RDI_real);
     
     //用于增加稳定性//
-    WarmStart(deltaTime, RDI_real, RDI_real);
+    WarmStart(deltaTime, RDI_real);
     
     //处理所有的碰撞，迭代多次，求得稳定的结果//
     for(int i=0; i < 10; i++)
@@ -189,33 +189,12 @@ void PhysicsRoutine::InitRoutine()
     }
 }
 
-void PhysicsRoutine::Finalize(double deltaTime, RigidDataIndex from, RigidDataIndex to)
-{
-    std::list<Entity*>::iterator iterBegin = physicalEntities.begin();
-    std::list<Entity*>::iterator iterEnd = physicalEntities.end();
-    while(iterBegin != iterEnd)
-    {
-        Entity* entity = *iterBegin;
-        RigidBody* rigidBody = entity->rigidBody;
-        RigidData& fromData = rigidBody->datas[from];
-        RigidData& toData = rigidBody->datas[to];
-        memcpy(&toData, &fromData, sizeof(RigidData));
-        
-        entity->position = toData.position;
-        entity->rotation = toData.rotation;
-        
-        iterBegin++;
-    }
-}
-
 void PhysicsRoutine::HandleContactForVelocityConstraints(RigidDataIndex from, RigidDataIndex to, ContactPoint& contact, double deltaTime)
 {
-    Entity* entityA = contact.entityA;
-    RigidBody* rigidBodyA = entityA->rigidBody;
+    RigidBody* rigidBodyA = contact.rigidBodyA;
     RigidData& dataA = rigidBodyA->datas[to];
     
-    Entity* entityB = contact.entityB;
-    RigidBody* rigidBodyB = entityB->rigidBody;
+    RigidBody* rigidBodyB = contact.rigidBodyB;
     RigidData& dataB = rigidBodyB->datas[to];
     
     if(((rigidBodyA->isStatic | dataA.isDormant) & (rigidBodyB->isStatic | dataB.isDormant)) == false)
@@ -237,27 +216,27 @@ void PhysicsRoutine::HandleContactForVelocityConstraints(RigidDataIndex from, Ri
         float biasPenetrationDepth = 0.0;
         if ((-contact.penetrationDistance) > PENETRATION_TOLERANCE && deltaTime > 0)
         {
-            biasPenetrationDepth = 0.8f * (PENETRATION_VELOCITY_BIAS / deltaTime) * fmax(0.0f, float((-contact.penetrationDistance) - PENETRATION_TOLERANCE));
+            biasPenetrationDepth = -(0.2f / deltaTime) * fmax(0.0f, float((-contact.penetrationDistance) - PENETRATION_TOLERANCE));
         }
         
         float collisionImpulseValA = (relativePosA * normal).dot(rigidBodyA->inertiaInverse.transform3x3(relativePosA * normal));
         float collisionImpulseValB = (relativePosB * normal).dot(rigidBodyB->inertiaInverse.transform3x3(relativePosB * normal));
-        float collisionImpulseVal = -(1.000f + combinedImpulseCoefficient + biasPenetrationDepth) * relativeVelocity.dot(normal) /
-                                        (rigidBodyA->oneDivMass + rigidBodyB->oneDivMass + collisionImpulseValA + collisionImpulseValB);
-
+        float collisionImpulseVal = -((1.000f + combinedImpulseCoefficient) * relativeVelocity.dot(normal) + biasPenetrationDepth) /
+        (rigidBodyA->oneDivMass + rigidBodyB->oneDivMass + collisionImpulseValA + collisionImpulseValB);
+        
         float newImpulse = fmax(contact.totalNormalImpulse + collisionImpulseVal, 0.0f);
         collisionImpulseVal = newImpulse - contact.totalNormalImpulse;
         contact.totalNormalImpulse = newImpulse;
         
         Vector3 collisionImpulse = normal * collisionImpulseVal;
         
-        if(!rigidBodyA->isStatic)
+        if(!rigidBodyA->isStatic && !dataA.isDormant)
         {
             dataA.velocity = dataA.velocity - (collisionImpulse * rigidBodyA->oneDivMass);
             dataA.angularVel = dataA.angularVel - (collisionImpulseVal * rigidBodyA->inertiaInverse.transform3x3(relativePosA * normal));
         }
         
-        if(!rigidBodyB->isStatic)
+        if(!rigidBodyB->isStatic && !dataB.isDormant)
         {
             dataB.velocity = dataB.velocity + (collisionImpulse * rigidBodyB->oneDivMass);
             dataB.angularVel = dataB.angularVel + (collisionImpulseVal * rigidBodyB->inertiaInverse.transform3x3(relativePosB * normal));
@@ -278,33 +257,28 @@ void PhysicsRoutine::HandleContactForVelocityConstraints(RigidDataIndex from, Ri
         frictionImpulseVal = fmax(fabs(combinedFrictionCoefficient * collisionImpulseVal), fabs(frictionImpulseVal)) * (frictionImpulseVal > 0 ? 1.0f : -1.0f);
         Vector3 frictionImpulse = frictionImpulseVal * tangent;
         
-        if(!rigidBodyA->isStatic)
+        if(!rigidBodyA->isStatic && !dataA.isDormant)
         {
             dataA.velocity = dataA.velocity - frictionImpulse * rigidBodyA->oneDivMass;
             dataA.angularVel = dataA.angularVel - frictionImpulseVal * rigidBodyA->inertiaInverse.transform3x3(relativePosA * tangent);
         }
         
-        if(!rigidBodyB->isStatic)
+        if(!rigidBodyB->isStatic && !dataB.isDormant)
         {
             dataB.velocity = dataB.velocity + frictionImpulse * rigidBodyB->oneDivMass;
             dataB.angularVel = dataB.angularVel + frictionImpulseVal * rigidBodyB->inertiaInverse.transform3x3(relativePosB * tangent);
         }
         
         //-- friction impulse end ----------------------------------------------------------------------------------------------------------------------------------------------------//
-        
-        if(!rigidBodyA->isStatic) dataA.CheckIfCanbeDormant();
-        if(!rigidBodyB->isStatic) dataB.CheckIfCanbeDormant();
     }
 }
 
 void PhysicsRoutine::HandleContactForPositionConstraints(RigidDataIndex from, RigidDataIndex to, ContactPoint& contact, double deltaTime)
 {
-    Entity* entityA = contact.entityA;
-    RigidBody* rigidBodyA = entityA->rigidBody;
+    RigidBody* rigidBodyA = contact.rigidBodyA;
     RigidData& dataA = rigidBodyA->datas[to];
     
-    Entity* entityB = contact.entityB;
-    RigidBody* rigidBodyB = entityB->rigidBody;
+    RigidBody* rigidBodyB = contact.rigidBodyB;
     RigidData& dataB = rigidBodyB->datas[to];
     
     if(((rigidBodyA->isStatic | dataA.isDormant) & (rigidBodyB->isStatic | dataB.isDormant)) == false)
@@ -318,18 +292,16 @@ void PhysicsRoutine::HandleContactForPositionConstraints(RigidDataIndex from, Ri
     }
 }
 
-void PhysicsRoutine::WarmContact(RigidDataIndex from, RigidDataIndex to, ContactPoint& contact, double deltaTime)
+void PhysicsRoutine::WarmContact(RigidDataIndex dataIndex, ContactPoint& contact, double deltaTime)
 {
-    Entity* entityA = contact.entityA;
-    RigidBody* rigidBodyA = entityA->rigidBody;
-    RigidData& dataA = rigidBodyA->datas[to];
+    RigidBody* rigidBodyA = contact.rigidBodyA;
+    RigidData& dataA = rigidBodyA->datas[dataIndex];
     
-    Entity* entityB = contact.entityB;
-    RigidBody* rigidBodyB = entityB->rigidBody;
-    RigidData& dataB = rigidBodyB->datas[to];
+    RigidBody* rigidBodyB = contact.rigidBodyB;
+    RigidData& dataB = rigidBodyB->datas[dataIndex];
     
     //let normal point from a -> b
-    Vector3 normal = - contact.GetGlobalNormalB2A(from);
+    Vector3 normal = - contact.GetGlobalNormalB2A(dataIndex);
     
     Vector3 relativePosA = contact.globalWittnessPointA - dataA.position;
     Vector3 relativePosB = contact.globalWittnessPointB - dataB.position;
@@ -338,13 +310,13 @@ void PhysicsRoutine::WarmContact(RigidDataIndex from, RigidDataIndex to, Contact
     float collisionImpulseVal = contact.totalNormalImpulse;
     Vector3 collisionImpulse = normal * collisionImpulseVal;
     
-    if(!rigidBodyA->isStatic)
+    if(!rigidBodyA->isStatic && !dataA.isDormant)
     {
         dataA.velocity = dataA.velocity - (collisionImpulse * rigidBodyA->oneDivMass);
         dataA.angularVel = dataA.angularVel - (collisionImpulseVal * rigidBodyA->inertiaInverse.transform3x3(relativePosA * normal));
     }
     
-    if(!rigidBodyB->isStatic)
+    if(!rigidBodyB->isStatic && !dataB.isDormant)
     {
         dataB.velocity = dataB.velocity + (collisionImpulse * rigidBodyB->oneDivMass);
         dataB.angularVel = dataB.angularVel + (collisionImpulseVal * rigidBodyB->inertiaInverse.transform3x3(relativePosB * normal));
@@ -356,13 +328,13 @@ void PhysicsRoutine::WarmContact(RigidDataIndex from, RigidDataIndex to, Contact
     float frictionImpulseVal = contact.totalTangentImpulse;
     Vector3 frictionImpulse = frictionImpulseVal * tangent;
     
-    if(!rigidBodyA->isStatic)
+    if(!rigidBodyA->isStatic && !dataA.isDormant)
     {
         dataA.velocity = dataA.velocity - frictionImpulse * rigidBodyA->oneDivMass;
         dataA.angularVel = dataA.angularVel - frictionImpulseVal * rigidBodyA->inertiaInverse.transform3x3(relativePosA * tangent);
     }
     
-    if(!rigidBodyB->isStatic)
+    if(!rigidBodyB->isStatic && !dataB.isDormant)
     {
         dataB.velocity = dataB.velocity + frictionImpulse * rigidBodyB->oneDivMass;
         dataB.angularVel = dataB.angularVel + frictionImpulseVal * rigidBodyB->inertiaInverse.transform3x3(relativePosB * tangent);
@@ -401,22 +373,15 @@ void PhysicsRoutine::UpdateVelocities(double deltaTime, RigidDataIndex from, Rig
         RigidData& fromData = rigidBody->datas[from];
         RigidData& toData = rigidBody->datas[to];
         
-        if(!rigidBody->isStatic)
+        if(!rigidBody->isStatic && !fromData.isDormant)
         {
-            if(!fromData.isDormant)
-            {
-                Vector3 combinedForce = fromData.force + (sVec3AxisNegY * rigidBody->mass * G_ACC);
-                
-                toData.acceleration = combinedForce * rigidBody->oneDivMass;
-                
-                toData.velocity = fromData.velocity + (toData.acceleration * deltaTime);
-                
-                toData.angularVel = fromData.angularVel;
-            }
-            else
-            {
-                memcpy(&toData, &fromData, sizeof(RigidData));
-            }
+            Vector3 combinedForce = fromData.force + (sVec3AxisNegY * rigidBody->mass * G_ACC);
+            
+            toData.acceleration = combinedForce * rigidBody->oneDivMass;
+            
+            toData.velocity = fromData.velocity + (toData.acceleration * deltaTime);
+            
+            toData.angularVel = fromData.angularVel;
         }
         else
         {
@@ -487,7 +452,7 @@ void PhysicsRoutine::UpdateManifolds(RigidDataIndex dataIndex)
     }
 }
 
-void PhysicsRoutine::WarmStart(double deltaTime, RigidDataIndex from, RigidDataIndex to)
+void PhysicsRoutine::WarmStart(double deltaTime, RigidDataIndex dataIndex)
 {
     std::list<ContactManifold*>::iterator iterBegin = manifolds.begin();
     std::list<ContactManifold*>::iterator iterEnd = manifolds.end();
@@ -496,7 +461,7 @@ void PhysicsRoutine::WarmStart(double deltaTime, RigidDataIndex from, RigidDataI
         ContactManifold* manifold = *iterBegin;
         for(int i=0; i<manifold->contactPointCount; i++)
         {
-            WarmContact(from, to, manifold->contactPoints[i], deltaTime);
+            WarmContact(dataIndex, manifold->contactPoints[i], deltaTime);
         }
         iterBegin++;
     }
@@ -548,26 +513,68 @@ void PhysicsRoutine::UpdatePosAndRots(double deltaTime, RigidDataIndex from, Rig
         RigidData& fromData = rigidBody->datas[from];
         RigidData& toData = rigidBody->datas[to];
         
-        if(!rigidBody->isStatic)
+        if(!rigidBody->isStatic && !fromData.isDormant)
         {
-            if(!fromData.isDormant)
-            {
-                toData.position = fromData.position + (toData.velocity * deltaTime);
-                
-                float angularVelVal = toData.angularVel.length();
-                float angularDeltaVal = angularVelVal * deltaTime;
-                Vector3 angularVelAxis = angularDeltaVal > EPSILON_FLT ? toData.angularVel / angularVelVal : sVec3AxisY;
-                Quaternion deltaRotQuat(angularDeltaVal, angularVelAxis);
-                toData.rotation = deltaRotQuat * fromData.rotation;
-                
-                toData.scale = fromData.scale;
-            }
+            toData.position = fromData.position + (toData.velocity * deltaTime);
+            
+            float angularVelVal = toData.angularVel.length();
+            float angularDeltaVal = angularVelVal * deltaTime;
+            Vector3 angularVelAxis = angularDeltaVal > EPSILON_FLT ? toData.angularVel / angularVelVal : sVec3AxisY;
+            Quaternion deltaRotQuat(angularDeltaVal, angularVelAxis);
+            toData.rotation = deltaRotQuat * fromData.rotation;
+            
+            toData.scale = fromData.scale;
+            
+            rigidBody->CheckIfCanbeDormant(from);
         }
         
         iterABegin++;
     }
 }
 
+void PhysicsRoutine::Finalize(double deltaTime, RigidDataIndex from, RigidDataIndex to)
+{
+    std::list<ContactManifold*> relatedManifolds;
+    
+    std::list<Entity*>::iterator iterBegin = physicalEntities.begin();
+    std::list<Entity*>::iterator iterEnd = physicalEntities.end();
+    while(iterBegin != iterEnd)
+    {
+        Entity* entity = *iterBegin;
+        RigidBody* rigidBody = entity->rigidBody;
+        RigidData& fromData = rigidBody->datas[from];
+        RigidData& toData = rigidBody->datas[to];
+        memcpy(&toData, &fromData, sizeof(RigidData));
+        
+        entity->position = toData.position;
+        entity->rotation = toData.rotation;
+        
+        iterBegin++;
+    }
+}
+
+bool PhysicsRoutine::FindAllMyManifolds(const RigidBody* me, std::list<const ContactManifold*>& relatedManifolds)
+{
+    bool ret = false;
+    
+    relatedManifolds.clear();
+    
+    std::list<ContactManifold*>::iterator iterABegin = manifolds.begin();
+    std::list<ContactManifold*>::iterator iterAEnd = manifolds.end();
+    while(iterABegin != iterAEnd)
+    {
+        ContactManifold* manifold = *iterABegin;
+        if(manifold != 0 && (manifold->rigidBodyA == me || manifold->rigidBodyB == me))
+        {
+            relatedManifolds.push_back(manifold);
+            ret = true;
+        }
+        
+        iterABegin++;
+    }
+    
+    return ret;
+}
 
 
 

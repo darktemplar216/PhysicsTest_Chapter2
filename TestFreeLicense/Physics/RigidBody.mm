@@ -19,23 +19,6 @@ Matrix4 RigidData::MakeTransMatrix() const
     return tranMatrix * rotMatrix * scaleMatrix;
 }
 
-bool RigidData::CheckIfCanbeDormant()
-{
-    bool ret = false;
-    
-    return ret; //taowei test
-    
-    if(velocity.lengthSquared() <= DORMAINT_THRESHOLD
-       && angularVel.lengthSquared() <= DORMAINT_THRESHOLD)
-    {
-        ret = true;
-        isDormant = true;
-        velocity = sVec3Zero;
-        angularVel = sVec3Zero;
-    }
-    return ret;
-}
-
 RigidBody::RigidBody():debugVBO(0)
 {
     
@@ -124,5 +107,59 @@ Vector3 RigidBody::getFarthestVectAtDir(const Vector3& dir, const Matrix4* trans
             ret = vertex;
         }
     }
+    return ret;
+}
+
+bool RigidBody::CheckIfCanbeDormant(RigidDataIndex dataIndex)
+{
+    bool ret = false;
+    
+    RigidData& data = datas[dataIndex];
+    
+    if(!isStatic && !data.isDormant)
+    {
+        if(data.velocity.lengthSquared() <= DORMAINT_THRESHOLD && data.angularVel.lengthSquared() <= DORMAINT_THRESHOLD)
+        {
+            std::list<const ContactManifold*> relatedManifold;
+            if(PhysicsRoutine::IsValid() && PhysicsRoutine::GetInstance()->FindAllMyManifolds(this, relatedManifold))
+            {
+                bool isCanBeDormant = true;
+                
+                std::list<const ContactManifold*>::iterator iterManifoldBegin = relatedManifold.begin();
+                std::list<const ContactManifold*>::iterator iterManifoldEnd = relatedManifold.end();
+                while(iterManifoldBegin != iterManifoldEnd)
+                {
+                    const ContactManifold* manifold = *iterManifoldBegin;
+                    
+                    for(int i=0; i<manifold->contactPointCount; i++)
+                    {
+                        const ContactPoint& point = manifold->contactPoints[i];
+                        
+                        isCanBeDormant &= (fabs(point.penetrationDistance) < (PENETRATION_TOLERANCE + EPSILON_FLT));
+                        if(!isCanBeDormant)
+                        {
+                            break;
+                        }
+                    }
+                    
+                    if(!isCanBeDormant)
+                    {
+                        break;
+                    }
+                    
+                    iterManifoldBegin++;
+                }
+                
+                if(isCanBeDormant)
+                {
+                    ret = true;
+                    data.isDormant = true;
+                    data.velocity = sVec3Zero;
+                    data.angularVel = sVec3Zero;
+                }
+            }
+        }
+    }
+    
     return ret;
 }

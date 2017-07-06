@@ -20,9 +20,9 @@ class ContactPoint
 {
 public:
     //实体A，注意这里和Manifold中的可能是刚好相反的//
-    Entity* entityA = 0;
+    RigidBody* rigidBodyA = 0;
     //实体B，注意这里和Manifold中的可能是刚好的//
-    Entity* entityB = 0;
+    RigidBody* rigidBodyB = 0;
     //A物体的碰撞点在其局部坐标系下的位置//
     Vector3 localWittnessPointA;
     //B物体的碰撞点在其局部坐标系下的位置//
@@ -31,6 +31,10 @@ public:
     Vector3 globalWittnessPointA;
     //B物体的碰撞点在在世界坐标系下的位置//
     Vector3 globalWittnessPointB;
+    //第一次碰撞时 A物体的碰撞点在在世界坐标系下的位置//
+    Vector3 originalGlobalWittnessPointA;
+    //第一次碰撞时 B物体的碰撞点在在世界坐标系下的位置//
+    Vector3 originalGlobalWittnessPointB;
     //基于物体B局部坐标系的法线//
     Vector3 localNormalInBSpace;
     //碰撞切线1，摩擦力的方向//
@@ -55,9 +59,9 @@ class ContactManifold
 public:
     
     //实体A，注意这里这是记录A和B碰撞了，它们实际碰撞点里面记录的entityA entityB才代表用来计算碰撞的方向//
-    Entity* entityA;
+    RigidBody* rigidBodyA;
     //实体B，注意这里这是记录A和B碰撞了，它们实际碰撞点里面记录的entityA entityB才代表用来计算碰撞的方向//
-    Entity* entityB;
+    RigidBody* rigidBodyB;
     
     //碰撞点们//
     ContactPoint contactPoints[CONTACT_POINT_COUNT];
@@ -65,8 +69,8 @@ public:
     
     void UpdateContacts(RigidDataIndex dataIndex);
     void TryToAddNewContact(RigidDataIndex dataIndex,
-                            Entity* entityA,
-                            Entity* entityB,
+                            RigidBody* rigidBodyA,
+                            RigidBody* rigidBodyB,
                             const btGjkEpaSolver2::sResults& result);
     
 private:

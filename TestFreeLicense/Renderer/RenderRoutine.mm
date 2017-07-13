@@ -125,10 +125,10 @@ bool RenderRoutine::LightsOn(ShaderProgram* program)
            && program->GetLocByName("eyePos", SPLNT_Uniform, locOfUniformEyePos))
         {
             ret = true;
-            glUniform3fv(locOfUniformLight1Pos, 1, GLKMatrix4MultiplyVector3(sceneMgr->baseModelViewMatrix, sceneMgr->lightWorldPos[0]).v);
+            glUniform3fv(locOfUniformLight1Pos, 1, sceneMgr->lightWorldPos[0].v);
             glUniform3fv(locOfUniformLight1Diffuse, 1, sceneMgr->lightDiffuse[0].v);
             glUniform3fv(locOfUniformLight1Specular, 1, sceneMgr->lightSpecular[0].v);
-            glUniform3fv(locOfUniformEyePos, 1, GLKMatrix4MultiplyVector3(sceneMgr->baseModelViewMatrix, sceneMgr->cameraPosition).v);
+            glUniform3fv(locOfUniformEyePos, 1, sceneMgr->cameraPosition.v);
         }
     }
     

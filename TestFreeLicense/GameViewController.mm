@@ -132,16 +132,11 @@
         //camera section//
         Vector3 dragAxis = Vector3(_deltaTouchPos.x, _deltaTouchPos.y, 0);
         float dragVal = dragAxis.normalizeF();
-        Vector3 rotateAngVel = (dragAxis * sVec3AxisZ).normalize() * dragVal;
         
-        Quaternion curOrientation = _curRotation;
-        curOrientation.normalize();
-        
-        _curRotation = _curRotation + 0.5 * Quaternion(0, rotateAngVel.x, rotateAngVel.y, rotateAngVel.z) * curOrientation * deltaTime;
-        
+        Quaternion rotationThisTime(dragVal * deltaTime, dragAxis.cross(sVec3AxisZ));
+        _curRotation = rotationThisTime * _curRotation;
         _curRotation.normalize();
         
-        GLKVector3 cameraPos = GLKVector3Make(0, 60, -80);
         GLKVector3 lookAtPos = GLKVector3Make(0, -10, 0);
         
         Vector3 camePosVec = _curRotation.rotateV(Vector3(0, 60, -80));

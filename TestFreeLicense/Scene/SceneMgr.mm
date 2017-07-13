@@ -21,6 +21,14 @@ SceneMgr::SceneMgr()
     memset(lightWorldPos, 0, sizeof(lightWorldPos));
     memset(lightDiffuse, 0, sizeof(lightDiffuse));
     memset(lightSpecular, 0, sizeof(lightSpecular));
+        
+    SetPerspectiveCamera(GLKVector3Make(0, 0, -1),
+                         GLKVector3Make(0, 0, 0),
+                         GLKVector3Make(0, 1, 0),
+                         GLKMathDegreesToRadians(45.0f),
+                         1,
+                         0.1f,
+                         100.0f);
 }
 
 SceneMgr::~SceneMgr()
@@ -59,12 +67,12 @@ void SceneMgr::DestroyInstance()
 void SceneMgr::SetPerspectiveCamera(GLKVector3 position, GLKVector3 lookAt, GLKVector3 up,
                                     float fovyRadians, float aspect, float nearZ, float farZ)
 {
-    cameraPosition = position;
     
+    /*
     baseModelViewMatrix = GLKMatrix4MakeLookAt(position.x, position.y, position.z,
                                                lookAt.x, lookAt.y, lookAt.z,
                                                up.x, up.y, up.z);
-    
+    */
     baseModelMatrix = GLKMatrix4MakeTranslation(-position.x, -position.y, -position.z);
     
     GLKVector3 negLookDir = GLKVector3Normalize(GLKVector3Subtract(position, lookAt));
@@ -75,11 +83,12 @@ void SceneMgr::SetPerspectiveCamera(GLKVector3 position, GLKVector3 lookAt, GLKV
                                                         negLookDir.x, negLookDir.y, negLookDir.z, 0,
                                                         0, 0, 0, 1));
     
-    GLKMatrix4 testmodleView = GLKMatrix4Multiply(baseViewMatrix, baseModelMatrix);
+    cameraPosition = position;
+    cameraForward.x = -negLookDir.x; cameraForward.y = -negLookDir.y; cameraForward.z = -negLookDir.z;
+    cameraUp = fixedUpDir;
+    cameraRight = rightDir;
     
     baseProjectionMatrix = GLKMatrix4MakePerspective(fovyRadians, aspect, nearZ, farZ);
-    
-    baseMVPMatrix = GLKMatrix4Invert(baseModelViewMatrix, 0);
 }
 
 void SceneMgr::AddEntity(Entity* entity)

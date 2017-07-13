@@ -3,10 +3,22 @@ class Vector3
 {
 public:
     
+    union
+    {
+        struct
+        {
+            float x;
+            float y;
+            float z;
+        };
+        
+        float v[3];
+    };
+    
     /// default constructor.
     /// does nothing for speed.
     
-    Vector3() {}
+    Vector3() { memset(v, 0, sizeof(v)); }
     
     /// construct Vector3 from x,y,z components.
     
@@ -216,9 +228,6 @@ public:
     friend inline Vector3 operator*(float s, const Vector3 &a);
     friend inline Vector3& operator*=(float s, Vector3 &a);
     
-    float x;        ///< x component of Vector3
-    float y;        ///< y component of Vector3
-    float z;        ///< z component of Vector3
 };
 
 

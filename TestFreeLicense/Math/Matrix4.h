@@ -3,10 +3,25 @@ class Matrix4
 {
 public:
     
+    // 4x4 Matrix4, index m[row][column], convention: pre-multiply column Vector3, Ax = b
+    // hence: (m11,m21,m31) make up the x axis of the 3x3 sub Matrix4,
+    // and (m14,m24,m34) is the translation Vector3.
+    union
+    {
+        struct
+        {
+            float m11,m12,m13,m14;
+            float m21,m22,m23,m24;
+            float m31,m32,m33,m34;
+            float m41,m42,m43,m44;
+        };
+        float v[16];
+    };
+    
     /// default constructor.
     /// does nothing for speed.
     
-    Matrix4() {};
+    Matrix4() { memset(v, 0, sizeof(v)); };
     
     /// construct a Matrix4 from three basis Vector3s.
     /// the x,y,z values from each of these basis Vector3s map to rows in the 3x3 sub Matrix4.
@@ -624,6 +639,11 @@ public:
         return &m11;
     }
     
+    void operator=(const GLKMatrix4& matrix)
+    {
+        memcpy(v, matrix.m, sizeof(v));
+    }
+    
     friend inline Matrix4 operator-(const Matrix4 &a);
     friend inline Matrix4 operator+(const Matrix4 &a, const Matrix4 &b);
     friend inline Matrix4 operator-(const Matrix4 &a, const Matrix4 &b);
@@ -641,16 +661,6 @@ public:
     friend inline Matrix4& operator*=(Matrix4 &a, float s);
     friend inline Matrix4& operator/=(Matrix4 &a, float s);
     friend inline Matrix4 operator*(float s, const Matrix4 &a);
-    
-    
-    // 4x4 Matrix4, index m[row][column], convention: pre-multiply column Vector3, Ax = b
-    // hence: (m11,m21,m31) make up the x axis of the 3x3 sub Matrix4,
-    // and (m14,m24,m34) is the translation Vector3.
-    
-    float m11,m12,m13,m14;
-    float m21,m22,m23,m24;
-    float m31,m32,m33,m34;
-    float m41,m42,m43,m44;
 };
 
 

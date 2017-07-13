@@ -3,10 +3,23 @@ class Quaternion
 {
 public:
     
+    union
+    {
+        struct
+        {
+            float w;
+            float x;
+            float y;
+            float z;
+        };
+
+        float v[4];
+    };
+    
     /// default constructor.
     /// does nothing for speed.
     
-    Quaternion() {}
+    Quaternion() { memset(v, 0, sizeof(v)); }
     
     /// construct quaternion from real component w and imaginary x,y,z.
     
@@ -404,11 +417,7 @@ public:
     friend inline Quaternion& operator/=(Quaternion &a, float s);
     friend inline Quaternion operator*(float s, const Quaternion &a);
     friend inline Quaternion& operator*=(float s, Quaternion &a);
-    
-    float w;        ///< w component of quaternion
-    float x;        ///< x component of quaternion
-    float y;        ///< y component of quaternion
-    float z;        ///< z component of quaternion
+
 };
 
 

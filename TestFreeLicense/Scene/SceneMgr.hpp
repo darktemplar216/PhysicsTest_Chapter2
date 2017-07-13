@@ -40,17 +40,14 @@ private:
 public:
     std::list<Entity*> entityList;
     
-    GLKMatrix4 baseModelViewMatrix;
+    Vector3 cameraPosition;
+    Vector3 cameraForward;
+    Vector3 cameraUp;
+    Vector3 cameraRight;
     
     GLKMatrix4 baseProjectionMatrix;
-    
-    GLKVector3 cameraPosition;
-    
     GLKMatrix4 baseModelMatrix;
-    
     GLKMatrix4 baseViewMatrix;
-    
-    GLKMatrix4 baseMVPMatrix;
     
     void SetPerspectiveCamera(GLKVector3 position, GLKVector3 lookAt, GLKVector3 up,
                               float fovyRadians, float aspect, float nearZ, float farZ);

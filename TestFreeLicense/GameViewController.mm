@@ -63,6 +63,8 @@
 
 - (void)dealloc
 {
+    delete m_sceneMgr;
+    
     [self tearDownGL];
     
     if ([EAGLContext currentContext] == self.context) {
@@ -101,18 +103,26 @@
     
     _accumTouchPos = GLKVector2Make(0, 0);
     
-    SceneMgr::CreateInstance();
-    RenderRoutine::CreateInstance();
-    PhysicsRoutine::CreateInstance();
+    m_sceneMgr = new SceneMgr();
+    
+    RenderRoutine* renderRoutine = new RenderRoutine();
+    renderRoutine->InitParams();
+    
+    PhysicsRoutine* physicsRoutine = new PhysicsRoutine();
+    physicsRoutine->InitParams(sVec3Gravity);
+    
+    m_sceneMgr->SetRenderRoutine(renderRoutine);
+    
+    // 注意以后的章节里这个PhysicsRoutine会被改为多线程的
+    m_sceneMgr->SetMultiThreadPhysicsRoutine(physicsRoutine);
     
     [self initScene];
 }
 
 - (void)tearDownGL
 {
-    SceneMgr::DestroyInstance();
-    RenderRoutine::DestroyInstance();
-    PhysicsRoutine::DestroyInstance();
+    delete m_sceneMgr;
+    m_sceneMgr = nullptr;
     
     [EAGLContext setCurrentContext:self.context];
 }
@@ -123,11 +133,7 @@
 {
     double deltaTime = self.timeSinceLastUpdate;
     
-    //test taowei
-    deltaTime = 1.0f / 60.0f;
-    
-    SceneMgr* sceneMgr = SceneMgr::GetInstance();
-    if(sceneMgr != 0)
+    if(m_sceneMgr != nullptr)
     {
         //camera section//
         Vector3 dragAxis = Vector3(_deltaTouchPos.x, _deltaTouchPos.y, 0);
@@ -142,20 +148,23 @@
         Vector3 camePosVec = _curRotation.rotateV(Vector3(0, 60, -80));
         
         float aspect = fabs(self.view.bounds.size.width / self.view.bounds.size.height);
-        sceneMgr->SetPerspectiveCamera(camePosVec.toGLKVector3(), lookAtPos, sGLKVec3AxisY, GLKMathDegreesToRadians(45.0f), aspect, 0.1f, 4000.0f);
+        m_sceneMgr->SetPerspectiveCamera(camePosVec.toGLKVector3(), lookAtPos, sGLKVec3AxisY, GLKMathDegreesToRadians(45.0f), aspect, 0.1f, 4000.0f);
         
-        if(PhysicsRoutine::IsValid()) PhysicsRoutine::GetInstance()->Update(deltaTime, self.framesDisplayed);
+        m_sceneMgr->Update(deltaTime, self.framesDisplayed);
         
         [self RemoveCubesInTheAbyss];
         
-        sceneMgr->UpdateFrameEnd();
+        m_sceneMgr->UpdateFrameEnd();
     }
     
 }
 
 - (void)glkView:(GLKView *)view drawInRect:(CGRect)rect
 {
-    if(RenderRoutine::IsValid()) RenderRoutine::GetInstance()->PipelineGo();
+    if(m_sceneMgr != nullptr)
+    {
+        m_sceneMgr->Render();
+    }
 }
 
 #pragma mark -  OpenGL ES 2 shader compilation
@@ -204,95 +213,76 @@
 
 - (void)initScene
 {
-    SceneMgr* sceneMgr = SceneMgr::GetInstance();
-    
-    sceneMgr->SetupLight(0,
-                         GLKVector3Make(400, 400, 400),
-                         GLKVector3Make(0.3f, 0.7f, 0.7f),
-                         GLKVector3Make(1.0f, 1.0f, 1.0f));
-    sceneMgr->SetLightEnable(0, true);
-    
-    Entity* entity = 0;
+    m_sceneMgr->SetupLight(0, GLKVector3Make(400, 400, 400), GLKVector3Make(0.3f, 0.7f, 0.7f), GLKVector3Make(1.0f, 1.0f, 1.0f));
+    m_sceneMgr->SetLightEnable(0, true);
     
     srand([[NSDate date] timeIntervalSince1970]);
     
-    //add floor//
-    entity = sceneMgr->AddCubEntity("floor",
-                                    GLKVector3Make(0, -10, 0),
-                                    GLKVector3Make(50, 2, 50),
-                                    GLKQuaternionIdentity,
-                                    sFloorColor,//
-                                    true);
-    /*
-     entity = sceneMgr->AddCubEntity("a",
-     sVec3Zero,
-     sVec3One,
-     GLKQuaternionIdentity,
-     sCubeColor,
-     false);
-     
-     entity = sceneMgr->AddCubEntity("b",
-     GLKVector3Make( 0.2, 4, 0.2),
-     sVec3One,
-     GLKQuaternionIdentity,
-     sCubeColor,
-     false);
-     */
+    //add floor, 注意 RigidBody 那块以后是多线程的//
+    Vector3 pos(0, -10.0f, 0);
+    Vector3 scale(50.0f, 2.0f, 50.0f);
+    Quaternion rot = IdentityQuaternion;
+    
+    RigidBody* rigidFloor = new RigidBody();
+    rigidFloor->InitParamsAsACube("floor", scale, pos, rot, true, 100.0f, 0.4f, 0.3f);
+    m_sceneMgr->GetMultiThreadPhysicesRoutine()->AddRigidBody(rigidFloor);
+    
+    Entity* entity = SceneMgr::GenerateCubEntity("floor", pos.toGLKVector3(), scale.toGLKVector3(), rot.toGLKQuaternion(), sFloorColor);
+    entity->InitPhysicsParam(rigidFloor);
+    
+    m_sceneMgr->AddEntity(entity);
 }
 
 int cubeIndexAccum = 0;
 
 - (void) throwANewCube
 {
-    SceneMgr* sceneMgr = SceneMgr::GetInstance();
-    
-    Entity* entity = 0;
-    
     float randX = (float)(rand() % 100) * 0.01f;
     float randY = (float)(rand() % 100) * 0.01f;
     float randZ = (float)(rand() % 100) * 0.01f;
     
-    float randQX = (float)(rand() % 100) * 0.01f; float signQX = (float)(rand() % 100) > 50.0f ? 1 : -1;
-    float randQY = (float)(rand() % 100) * 0.01f; float signQY = (float)(rand() % 100) > 50.0f ? 1 : -1;
-    float randQZ = (float)(rand() % 100) * 0.01f; float signQZ = (float)(rand() % 100) > 50.0f ? 1 : -1;
-    float randQW = (float)(rand() % 100) * 0.01f;
+    float randQX = (float)(rand() % 100); float signQX = (float)(rand() % 100) > 50.0f ? 1 : -1;
+    float randQY = (float)(rand() % 100); float signQY = (float)(rand() % 100) > 50.0f ? 1 : -1;
+    float randQZ = (float)(rand() % 100); float signQZ = (float)(rand() % 100) > 50.0f ? 1 : -1;
+    float randAngle = (float)(rand() % 360);
     
     cubeIndexAccum++;
     
     char cubeName[25] = {0};
     sprintf(cubeName, "cube_%d", cubeIndexAccum);
-    /*
-     entity = sceneMgr->AddCubEntity(cubeName,
-     GLKVector3Make(randX * 25.0f, 0, randZ * 25.0f),
-     sVec3One,
-     GLKQuaternionMakeWithAngleAndVector3Axis(randQW * 3.0f, GLKVector3Normalize(GLKVector3Make(randQX, randQY, randQZ))), // //GLKQuaternionIdentity
-     sCubeColor,
-     false);
-     */
-    entity = sceneMgr->AddCubEntity(cubeName,
-                                    GLKVector3Make(randX * 9.0f, 30 + randY * 10.0f, randZ * 9.0f),
-                                    GLKVector3Make(6, 6, 6),
-                                    GLKQuaternionMakeWithAngleAndVector3Axis(randQW * 3.0f, GLKVector3Normalize(GLKVector3Make(signQX * randQX, signQY * randQY, signQZ * randQZ))), //GLKQuaternionIdentity, // //GLKQuaternionIdentity
-                                    sCubeColor,
-                                    false);
+    
+    Vector3 pos(randX * 9.0f, 30 + randY * 10.0f, randZ * 9.0f);
+    Vector3 scale(6, 6, 6);
+    Vector3 rotAxis(signQX * randQX, signQY * randQY, signQZ * randQZ);
+    rotAxis.normalize();
+    Quaternion rot(randAngle, rotAxis);
+    
+    RigidBody* rigidBox = new RigidBody();
+    rigidBox->InitParamsAsACube(cubeName, scale, pos, rot, false, 100.0f, 0.7f, 0.5f);
+    m_sceneMgr->GetMultiThreadPhysicesRoutine()->AddRigidBody(rigidBox);
+    
+    Entity* entity = SceneMgr::GenerateCubEntity(cubeName, pos.toGLKVector3(), scale.toGLKVector3(), rot.toGLKQuaternion(), sCubeColor);
+    entity->InitPhysicsParam(rigidBox);
+    
+    m_sceneMgr->AddEntity(entity);
 }
 
 - (void) RemoveCubesInTheAbyss
 {
-    if(SceneMgr::IsValid())
+    if(m_sceneMgr != nullptr)
     {
-        SceneMgr* sceneMgr = SceneMgr::GetInstance();
-        
-        std::list<Entity*>::iterator iterBegin = sceneMgr->entityList.begin();
-        std::list<Entity*>::iterator iteBEnd = sceneMgr->entityList.end();
+        std::list<Entity*>::iterator iterBegin = m_sceneMgr->GetEntityList().begin();
+        std::list<Entity*>::iterator iteBEnd = m_sceneMgr->GetEntityList().end();
         while(iterBegin != iteBEnd)
         {
             Entity* entity = *iterBegin;
-            if(entity->rigidBody != 0)
+            const RigidData* rigidData = entity->GetRigidData();
+            
+            if(entity->getRigidBodyUID() != 0 && rigidData != nullptr)
             {
-                if(!entity->rigidBody->isStatic)
+                if( ! rigidData->m_isStatic)
                 {
-                    if(entity->rigidBody->datas[RDI_real].isDormant)
+                    if(rigidData->m_isDormant)
                     {
                         entity->baseColor = sDormantCubeColor;
                     }
@@ -305,8 +295,7 @@ int cubeIndexAccum = 0;
 
             if(entity->position.y < -80)
             {
-                
-                sceneMgr->DeleteEntity(&entity);
+                m_sceneMgr->DeleteEntity(&entity);
             }
             iterBegin++;
         }

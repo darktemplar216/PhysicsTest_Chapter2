@@ -14,9 +14,20 @@
 #include "PhysicsRoutine.hpp"
 
 class VBO;
+class RigidBody;
+class RigidData;
+class SceneMgr;
 
 class Entity
 {
+private:
+    
+    friend class SceneMgr;
+    
+private:
+    
+    SceneMgr* m_sceneMgr = nullptr;
+    
 public:
     
     std::string name;
@@ -28,10 +39,6 @@ public:
     Vector3 scale;
     
 public:
-    
-    RigidBody* rigidBody = 0;
-    
-public:
 
     VBO* vertexVBO = 0;
     
@@ -39,18 +46,23 @@ public:
     
     GLKVector4 baseColor;
     
+    int m_rigidBodyUID = 0;
+    RigidData* m_rigidData = nullptr;
+    
 public:
     
     Entity();
     virtual ~Entity();
     
-    void Init(const float* vertices, int verticesCount,
-              const float* normals, int normalCount,
-              const float* hull, int hullCount);
-    
+    void InitRenderParam(const float* vertices, int verticesCount, const float* normals, int normalCount);
+    void InitPhysicsParam(const RigidBody* rigidBody);
     void Uninit();
     
+    void Update(float deltaTime);
     void Draw(const ShaderProgram* program);
+    
+    const RigidData* GetRigidData() const;
+    int getRigidBodyUID() const;
 };
 
 

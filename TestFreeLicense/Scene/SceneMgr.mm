@@ -10,10 +10,8 @@
 #include "SceneMgr.hpp"
 #include "Entity.hpp"
 #include "TestData.h"
-
-
-SceneMgr* SceneMgr::instance = 0;
-
+#include "RenderRoutine.hpp"
+#include "PhysicsRoutine.hpp"
 
 SceneMgr::SceneMgr()
 {
@@ -33,35 +31,10 @@ SceneMgr::SceneMgr()
 
 SceneMgr::~SceneMgr()
 {
+    ClearEntity();
     
-}
-
-bool SceneMgr::IsValid()
-{
-    return instance != 0;
-}
-
-SceneMgr* SceneMgr::GetInstance()
-{
-    return instance;
-}
-
-SceneMgr* SceneMgr::CreateInstance()
-{
-    if(instance == 0)
-    {
-        instance = new SceneMgr();
-    }
-    return instance;
-}
-
-void SceneMgr::DestroyInstance()
-{
-    if(instance != 0)
-    {
-        delete instance;
-        instance = 0;
-    }
+    delete m_renderRoutine;
+    delete m_multiThreadPhysicsRoutine;
 }
 
 void SceneMgr::SetPerspectiveCamera(GLKVector3 position, GLKVector3 lookAt, GLKVector3 up,
@@ -95,8 +68,8 @@ void SceneMgr::AddEntity(Entity* entity)
 {
     bool found = false;
     
-    std::list<Entity*>::iterator iterBegin = entityList.begin();
-    std::list<Entity*>::iterator iterEnd = entityList.end();
+    std::list<Entity*>::iterator iterBegin = m_entityList.begin();
+    std::list<Entity*>::iterator iterEnd = m_entityList.end();
     while(iterBegin != iterEnd)
     {
         if((*iterBegin) == entity)
@@ -109,16 +82,18 @@ void SceneMgr::AddEntity(Entity* entity)
     
     if(!found)
     {
-        entityList.push_back(entity);
+        m_entityList.push_back(entity);
     }
+    
+    entity->m_sceneMgr = this;
 }
 
 void SceneMgr::DeleteEntity(Entity** entity)
 {
     bool found = false;
     
-    std::list<Entity*>::iterator iterBegin = entitiesToRemove.begin();
-    std::list<Entity*>::iterator iterEnd = entitiesToRemove.end();
+    std::list<Entity*>::iterator iterBegin = m_entitiesToRemove.begin();
+    std::list<Entity*>::iterator iterEnd = m_entitiesToRemove.end();
     while(iterBegin != iterEnd)
     {
         if(*entity == *iterBegin)
@@ -131,52 +106,35 @@ void SceneMgr::DeleteEntity(Entity** entity)
     
     if(!found)
     {
-        entitiesToRemove.push_back(*entity);
+        m_entitiesToRemove.push_back(*entity);
     }
     
-    *entity = 0;
+    *entity = nullptr;
 }
 
 void SceneMgr::ClearEntity()
 {
-    std::list<Entity*>::iterator iterBegin = entityList.begin();
-    std::list<Entity*>::iterator iterEnd = entityList.end();
+    std::list<Entity*>::iterator iterBegin = m_entityList.begin();
+    std::list<Entity*>::iterator iterEnd = m_entityList.end();
     while(iterBegin != iterEnd)
     {
         delete *iterBegin;
         iterBegin++;
     }
-    entityList.clear();
+    m_entityList.clear();
 }
 
-Entity* SceneMgr::AddCubEntity(const char* name, GLKVector3 pos, GLKVector3 scale, GLKQuaternion rot, GLKVector4 color, bool isStatic)
+Entity* SceneMgr::GenerateCubEntity(const char* name, GLKVector3 pos, GLKVector3 scale, GLKQuaternion rot, GLKVector4 color)
 {
     Entity* entity = new Entity();
     
     entity->name = name;
     
-    entity->Init(TestData::cubeVertices, 108, TestData::cubeNormals, 108, TestData::cubeHull, 24);
+    entity->InitRenderParam(TestData::cubeVertices, 108, TestData::cubeNormals, 108);
     entity->position = pos;
     entity->scale = scale;
     entity->rotation = rot;
-    
     entity->baseColor = color;
-    
-    float linearFrictionCoefficient = 0.3;
-
-    //注意我们的cube认为是单位长度的 1 //
-    float len = entity->scale.x * 1;
-    float hei = entity->scale.y * 1;
-    float wid = entity->scale.z * 1;
-    
-    float mass = entity->rigidBody->isStatic ? 99999999.0f : 1;
-    Matrix4 cubeInertia(mass*0.083333f * (hei*hei + wid*wid),0,0,0,
-                        0,mass*0.083333f * (len*len + wid*wid),0,0,
-                        0,0,mass*0.083333f * (len*len + hei*hei),0,
-                        0,0,0,1);
-    entity->rigidBody->SetPhysicallParams(isStatic, mass, cubeInertia, linearFrictionCoefficient);
-    
-    AddEntity(entity);
     
     return entity;
 }
@@ -201,26 +159,80 @@ void SceneMgr::SetLightEnable(int index, bool enable)
 
 void SceneMgr::UpdateFrameEnd()
 {
-    std::list<Entity*>::iterator iterBegin = entitiesToRemove.begin();
-    std::list<Entity*>::iterator iterEnd = entitiesToRemove.end();
+    std::list<Entity*>::iterator iterBegin = m_entitiesToRemove.begin();
+    std::list<Entity*>::iterator iterEnd = m_entitiesToRemove.end();
     while(iterBegin != iterEnd)
     {
-        entityList.remove(*iterBegin);
-        
-        if(PhysicsRoutine::IsValid()) PhysicsRoutine::GetInstance()->RemoveRelatedManifold(*iterBegin);
+        m_entityList.remove(*iterBegin);
         
         delete *iterBegin;
         iterBegin++;
     }
     
-    entitiesToRemove.clear();
+    m_entitiesToRemove.clear();
 }
 
+void SceneMgr::Update(float deltaTime, long frameCount)
+{
+    // 注意， 这里以后会改成多线程的
+    if(m_multiThreadPhysicsRoutine != nullptr)
+    {
+        m_multiThreadPhysicsRoutine->Update(deltaTime, frameCount);
+        
+        std::list<Entity*>::iterator iterBegin = m_entityList.begin();
+        std::list<Entity*>::iterator iterEnd = m_entityList.end();
+        while(iterBegin != iterEnd)
+        {
+            Entity* entity = *iterBegin;
+            if(entity != nullptr)
+            {
+                RigidBody* rigidBody = m_multiThreadPhysicsRoutine->GetRigidBody(entity->m_rigidBodyUID);
+                if(rigidBody != nullptr)
+                {
+                    memcpy(entity->m_rigidData, rigidBody->getDataConst(RDI_real), sizeof(RigidData));
+                }
+                
+                entity->position = entity->m_rigidData->m_position;
+                entity->rotation = entity->m_rigidData->m_rotation;
+                entity->scale = entity->m_rigidData->m_scale;
+                
+                entity->Update(deltaTime);
+            }
+            iterBegin++;
+        }
+    }
+}
 
+void SceneMgr::Render()
+{
+    if(m_renderRoutine == nullptr)
+    {
+        return;
+    }
+    
+    m_renderRoutine->Render();
+}
 
+void SceneMgr::SetRenderRoutine(RenderRoutine* routine)
+{
+    m_renderRoutine = routine;
+    m_renderRoutine->m_sceneMgr = this;
+}
 
+void SceneMgr::SetMultiThreadPhysicsRoutine(PhysicsRoutine* routine)
+{
+    m_multiThreadPhysicsRoutine = routine;
+}
 
+PhysicsRoutine* SceneMgr::GetMultiThreadPhysicesRoutine()
+{
+    return m_multiThreadPhysicsRoutine;
+}
 
+std::list<Entity*>& SceneMgr::GetEntityList()
+{
+    return m_entityList;
+}
 
 
 

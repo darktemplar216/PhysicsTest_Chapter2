@@ -10,34 +10,42 @@
 #define RigidBody_hpp
 
 #include "GMath.h"
+#include <string>
 
 class VBO;
 class Entity;
+class PhysicsRoutine;
 
 class RigidData
 {
 public:
     
     //这一次模拟帧，物体被施加了多大的力//
-    Vector3 force;
+    Vector3 m_force;
     //线速度//
-    Vector3 velocity;
+    Vector3 m_velocity;
     //加速度//
-    Vector3 acceleration;
+    Vector3 m_acceleration;
     //角速度//
-    Vector3 angularVel;
+    Vector3 m_angularVel;
     //位置//
-    Vector3 position;
+    Vector3 m_position;
     //朝向//
-    Quaternion rotation;
+    Quaternion m_rotation;
     //缩放//
-    Vector3 scale;
+    Vector3 m_scale = sVec3One;
     //能量//
-    float energy = 0;
+    float m_energy = 0;
     //是不是“静置”状态，主要用来省性能和增加稳定性//
-    bool isDormant = false;
+    bool m_isDormant = false;
+    //是不是静态场景物体//
+    bool m_isStatic = false;
     
-    Matrix4 MakeTransMatrix() const;
+    Matrix4 MakeTRSMatrix() const;
+    
+    Matrix4 MakeRSMatrix() const;
+    
+    Matrix4 MakeRMatrix() const;
 };
 
 class PointCloud
@@ -46,84 +54,80 @@ public:
     virtual Vector3 getFarthestVectAtDir(const Vector3& dir, const Matrix4* trans) const = 0;
 };
 
-class RigidVertex : public PointCloud
-{
-public:
-    Vector3 vertex;
-    
-    RigidVertex(float x, float y, float z):vertex(x, y, z)
-    {
-    }
-    
-    virtual Vector3 getFarthestVectAtDir(const Vector3& dir, const Matrix4* trans) const
-    {
-        if(trans != 0)
-        {
-            return (*trans) * vertex;
-        }
-        else
-        {
-            return vertex;
-        }
-    }
-};
-
 enum RigidDataIndex
 {
     RDI_real = 0,
     RDI_rk4_1,
-    RDI_rk4_2,
-    RDI_rk4_3,
-    RDI_rk4_4,
     RDI_count
 };
 
 class RigidBody : public PointCloud
 {
 public:
-    std::string name;
+    
+    friend class PhysicsRoutine;
+    
+public:
+    
+    std::string m_name;
     
     //用于表示这个刚体是不是“静态的”，不能被推动，比如我们的地板//
-    bool isStatic = false;
+    bool m_isStatic = false;
+    
     //质量//
-    float mass = 1;
+    float m_mass = 1;
+    
     //1除以质量//
-    float oneDivMass = 1;
+    float m_oneDivMass = 1;
+    
     //如果等于0那完全非弹性碰撞，1完全弹性碰撞//
-    float impulseCoefficient = 1;
-    //转动惯量，决定一个物体在xyz三个轴上面有多难转动//
-    Matrix4 inertia;
-    //转动惯量矩阵的逆矩阵，计算上有用//
-    Matrix4 inertiaInverse;
+    float m_collisionCoefficient = 1.0f;
+    
+    Matrix4 m_inertiaLocal;
+    
+    Matrix4 m_inertiaLocalInverse;
+    
     //摩擦系数//
-    float linearFrictionCoefficient = 0.3;
+    float m_linearFrictionCoefficient = 0.3;
+    
     //这里是我们把刚体的一些“易变”参数封装好几份，以后有用//
-    RigidData datas[RDI_count];
+    RigidData m_datas[RDI_count];
 
-    void CalculateEnergy(RigidData& data);
+protected:
     
-    bool CheckIfCanbeDormant(RigidDataIndex dataIndex);
+    int m_uid = 0;
     
-    void SetPhysicallParams(bool inIsStatic, float inMass, const Matrix4& inInertia, float inLinearFrictionCoefficient);
+    float* m_hullVertices = nullptr;
+    
+    int m_hullVerticesCount = 0;
+    
+    PhysicsRoutine* m_routine = nullptr;
+    
+    std::vector<RigidBody*> haveCheckedWithList;
     
 public:
-    
-    std::vector<Entity*> haveCheckedWithList;
-    
-    virtual Vector3 getFarthestVectAtDir(const Vector3& dir, const Matrix4* trans) const;
-    
-public:
-    
-    float* hull = 0;
-    
-    int vertexCount = 0;
-    
-    VBO* debugVBO;
-    
+
     RigidBody();
     virtual ~RigidBody();
     
-    void Init(std::string inName, const float* hullData, int size);
+    void InitParamsAsACube(const std::string& name,
+                           const Vector3& scale,
+                           const Vector3& pos,
+                           const Quaternion& rot,
+                           bool isStatic,
+                           float mass,
+                           float collisionCoefficient,
+                           float linearFrictionCoefficient);
+        
+    virtual Vector3 getFarthestVectAtDir(const Vector3& dir, const Matrix4* trans) const;
+        
+    RigidData* getData(RigidDataIndex index);
+    const RigidData* getDataConst(RigidDataIndex index) const;
+    
+    int getUID() const;
+
+    void CalculateEnergy(RigidData& data);
+    
 };
 
 #endif /* RigidBody_hpp */

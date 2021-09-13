@@ -16,29 +16,24 @@
 #define LIGHT_COUNT 3
 
 class Entity;
+class RenderRoutine;
+class PhysicsRoutine;
 
 class SceneMgr
 {
-private:
-    static SceneMgr* instance;
-    
-    SceneMgr();
-    
-public:
-    
-    ~SceneMgr();
-    
-    static bool IsValid();
-    static SceneMgr* GetInstance();
-    static SceneMgr* CreateInstance();
-    static void DestroyInstance();
+    friend class RenderRoutine;
     
 private:
     
-    std::list<Entity*> entitiesToRemove;
+    std::list<Entity*> m_entitiesToRemove;
+    std::list<Entity*> m_entityList;
+    
+    RenderRoutine* m_renderRoutine = nullptr;
+    
+    // 要注意 m_physicsRoutine 可能属于另外一个线程，后面的章节会用到
+    PhysicsRoutine* m_multiThreadPhysicsRoutine = nullptr;
 
 public:
-    std::list<Entity*> entityList;
     
     Vector3 cameraPosition;
     Vector3 cameraForward;
@@ -54,13 +49,31 @@ public:
     
 public:
     
+    SceneMgr();
+    
+    virtual ~SceneMgr();
+    
     void AddEntity(Entity* entity);
     
     void DeleteEntity(Entity** entity);
     
     void ClearEntity();
     
+    void SetRenderRoutine(RenderRoutine* routine);
+    
+    void SetMultiThreadPhysicsRoutine(PhysicsRoutine* routine);
+    
+    PhysicsRoutine* GetMultiThreadPhysicesRoutine();
+    
+    std::list<Entity*>& GetEntityList();
+    
+public:
+    
+    void Update(float deltaTime, long frameCount);
+    
     void UpdateFrameEnd();
+    
+    void Render();
     
 public:
     
@@ -74,12 +87,7 @@ public:
     
 public:
     
-    Entity* AddCubEntity(const char* name,
-                         GLKVector3 pos,
-                         GLKVector3 scale,
-                         GLKQuaternion rot,
-                         GLKVector4 color,
-                         bool isStatic);
+    static Entity* GenerateCubEntity(const char* name, GLKVector3 pos, GLKVector3 scale, GLKQuaternion rot, GLKVector4 color);
     
 };
 

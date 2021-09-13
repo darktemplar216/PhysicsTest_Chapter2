@@ -19,10 +19,6 @@
 class ContactPoint
 {
 public:
-    //实体A，注意这里和Manifold中的可能是刚好相反的//
-    RigidBody* rigidBodyA = 0;
-    //实体B，注意这里和Manifold中的可能是刚好的//
-    RigidBody* rigidBodyB = 0;
     //A物体的碰撞点在其局部坐标系下的位置//
     Vector3 localWittnessPointA;
     //B物体的碰撞点在其局部坐标系下的位置//
@@ -49,9 +45,9 @@ public:
     float totalTangentImpulse;
     //切线2方向上的总碰撞冲量//
     float totalTangentImpulse2;
+    //这个接触点是不是在经过了多帧之后仍然有效
+    bool isAlive;
     
-    //获得世界坐标系下的法线方向//
-    Vector3 GetGlobalNormalB2A(RigidDataIndex dataIndex);
 };
 
 class ContactManifold
@@ -59,19 +55,22 @@ class ContactManifold
 public:
     
     //实体A，注意这里这是记录A和B碰撞了，它们实际碰撞点里面记录的entityA entityB才代表用来计算碰撞的方向//
-    RigidBody* rigidBodyA;
+    RigidBody* m_rigidBodyA;
     //实体B，注意这里这是记录A和B碰撞了，它们实际碰撞点里面记录的entityA entityB才代表用来计算碰撞的方向//
-    RigidBody* rigidBodyB;
+    RigidBody* m_rigidBodyB;
     
     //碰撞点们//
     ContactPoint contactPoints[CONTACT_POINT_COUNT];
-    int contactPointCount = 0;
+    int m_contactPointCount = 0;
     
     void UpdateContacts(RigidDataIndex dataIndex);
     void TryToAddNewContact(RigidDataIndex dataIndex,
-                            RigidBody* rigidBodyA,
-                            RigidBody* rigidBodyB,
+                            RigidBody* possibleRigidA,
+                            RigidBody* possibleRigidB,
                             const btGjkEpaSolver2::sResults& result);
+    
+    float GetCollisionImpulseCoefficient() const;
+    float GetFrictionImpulseCoefficient() const;
     
 private:
     

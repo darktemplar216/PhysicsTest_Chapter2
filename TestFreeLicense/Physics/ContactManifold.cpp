@@ -6,27 +6,22 @@
 //  Copyright © 2017年 TaoweisMac. All rights reserved.
 //
 
-#include "ContactReport.hpp"
+#include "ContactManifold.hpp"
 #include "Entity.hpp"
-
-Vector3 ContactPoint::GetGlobalNormalB2A(RigidDataIndex dataIndex)
-{
-    return rigidBodyB->datas[dataIndex].rotation.matrix() * localNormalInBSpace;
-}
 
 void ContactManifold::UpdateContacts(RigidDataIndex dataIndex)
 {
-    for(int i=0; i<contactPointCount; i++)
+    for(int i=0; i<m_contactPointCount; i++)
     {
         ContactPoint& point = contactPoints[i];
 
-        Matrix4 localToWorldA = point.rigidBodyA->datas[dataIndex].MakeTransMatrix();
-        Matrix4 localToWorldB = point.rigidBodyB->datas[dataIndex].MakeTransMatrix();
+        Matrix4 localToWorldA = m_rigidBodyA->m_datas[dataIndex].MakeTRSMatrix();
+        Matrix4 localToWorldB = m_rigidBodyB->m_datas[dataIndex].MakeTRSMatrix();
         
         point.globalWittnessPointA = localToWorldA * point.localWittnessPointA;
         point.globalWittnessPointB = localToWorldB * point.localWittnessPointB;
         
-        Vector3 globalNormalB2A = point.GetGlobalNormalB2A(dataIndex);
+        Vector3 globalNormalB2A = m_rigidBodyB->m_datas[dataIndex].m_rotation.matrix() * point.localNormalInBSpace;
         
         point.penetrationDistance = (point.globalWittnessPointA - point.globalWittnessPointB).dot(globalNormalB2A);
         
@@ -42,50 +37,63 @@ void ContactManifold::UpdateContacts(RigidDataIndex dataIndex)
             {
                 contactPoints[shift] = contactPoints[shift + 1];
             }
-            contactPointCount--;
+            m_contactPointCount--;
         }
     }
 }
 
 void ContactManifold::TryToAddNewContact(RigidDataIndex dataIndex,
-                                         RigidBody* rigidBodyA,
-                                         RigidBody* rigidBodyB,
+                                         RigidBody* possibleRigidA,
+                                         RigidBody* possibleRigidB,
                                          const btGjkEpaSolver2::sResults& result)
 {
     if(IfShouldAddNewContactPoint(dataIndex, result))
     {
+        const RigidData& rigidDataA = m_rigidBodyA->m_datas[dataIndex];
+        const RigidData& rigidDataB = m_rigidBodyB->m_datas[dataIndex];
+        
         ContactPoint newCPoint;
         memset(&newCPoint, 0, sizeof(ContactPoint));
         
-        newCPoint.rigidBodyA = rigidBodyA;
-        newCPoint.rigidBodyB = rigidBodyB;
+        // 注意，EPA 给回来的 a 和 b 可能刚好和我们记录的 ab相反
+        if(m_rigidBodyA == possibleRigidA)
+        {
+            newCPoint.globalWittnessPointA = result.witnesses[0];
+            newCPoint.globalWittnessPointB = result.witnesses[1];
+            
+            //normal point from b -> a in local space of b//
+            newCPoint.localNormalInBSpace = rigidDataB.m_rotation.matrix().inverse() * result.normal;
+            newCPoint.tangent = sVec3Zero;
+            newCPoint.tangent2 = sVec3Zero;
+        }
+        else
+        {
+            newCPoint.globalWittnessPointA = result.witnesses[1];
+            newCPoint.globalWittnessPointB = result.witnesses[0];
+            
+            //normal point from b -> a in local space of b//
+            newCPoint.localNormalInBSpace = rigidDataB.m_rotation.matrix().inverse() * (-result.normal);
+            newCPoint.tangent = sVec3Zero;
+            newCPoint.tangent2 = sVec3Zero;
+        }
         
-        //newCPoint.result = result;
         newCPoint.globalWittnessPointA = result.witnesses[0];
         newCPoint.globalWittnessPointB = result.witnesses[1];
         
         newCPoint.originalGlobalWittnessPointA = result.witnesses[0];
         newCPoint.originalGlobalWittnessPointB = result.witnesses[1];
         
-        const RigidData& rigidDataA = newCPoint.rigidBodyA->datas[dataIndex];
-        const RigidData& rigidDataB = newCPoint.rigidBodyB->datas[dataIndex];
-        
-        Matrix4 localToGlobalTransA = rigidDataA.MakeTransMatrix().inverse();
+        Matrix4 localToGlobalTransA = rigidDataA.MakeTRSMatrix().inverse();
         newCPoint.localWittnessPointA = localToGlobalTransA * newCPoint.globalWittnessPointA;
-        Matrix4 localToGlobalTransB = rigidDataB.MakeTransMatrix().inverse();
+        Matrix4 localToGlobalTransB = rigidDataB.MakeTRSMatrix().inverse();
         newCPoint.localWittnessPointB = localToGlobalTransB * newCPoint.globalWittnessPointB;
-        
-        //normal point from b -> a in local space of b//
-        newCPoint.localNormalInBSpace = rigidDataB.rotation.matrix().inverse() * result.normal;
-        newCPoint.tangent = sVec3Zero;
-        newCPoint.tangent2 = sVec3Zero;
         
         newCPoint.penetrationDistance = result.distance;
         
-        contactPointCount++;
-        contactPoints[contactPointCount - 1] = newCPoint;
+        m_contactPointCount++;
+        contactPoints[m_contactPointCount - 1] = newCPoint;
         
-        if(contactPointCount == CONTACT_POINT_COUNT)
+        if(m_contactPointCount == CONTACT_POINT_COUNT)
         {
             RearrengeContactPoints();
         }
@@ -96,7 +104,7 @@ bool ContactManifold::IfShouldAddNewContactPoint(RigidDataIndex dataIndex, const
 {
     bool ret = true;
     
-    for(int i=0; i<contactPointCount; i++)
+    for(int i=0; i<m_contactPointCount; i++)
     {
         ContactPoint& point = contactPoints[i];
         
@@ -117,7 +125,7 @@ void ContactManifold::RearrengeContactPoints()
 {
     float maxDepth = 999999.0f;
     int deepestIndex = 0;
-    for(int i=0; i<contactPointCount; i++)
+    for(int i=0; i<m_contactPointCount; i++)
     {
         ContactPoint& point = contactPoints[i];
         if(point.penetrationDistance < maxDepth)
@@ -130,7 +138,7 @@ void ContactManifold::RearrengeContactPoints()
     ContactPoint& newCPoint = contactPoints[CONTACT_POINT_COUNT - 1];
     int indexToRemove = GetIndexToRemove(deepestIndex, newCPoint.localWittnessPointA);
     contactPoints[indexToRemove] = newCPoint;
-    contactPointCount = CONTACT_POINT_COUNT - 1;
+    m_contactPointCount = CONTACT_POINT_COUNT - 1;
 }
 
 // Return the index that will be removed.
@@ -146,7 +154,7 @@ void ContactManifold::RearrengeContactPoints()
 int ContactManifold::GetIndexToRemove(int indexMaxPenetration, const Vector3& newPoint) const
 {
     
-    assert(contactPointCount == CONTACT_POINT_COUNT);
+    assert(m_contactPointCount == CONTACT_POINT_COUNT);
     
     float area0 = 0.0;       // Area with contact 1,2,3 and newPoint
     float area1 = 0.0;       // Area with contact 0,2,3 and newPoint
@@ -215,7 +223,15 @@ int ContactManifold::GetMaxArea(float area0, float area1, float area2, float are
     }
 }
 
+float ContactManifold::GetCollisionImpulseCoefficient() const
+{
+    return fmax(m_rigidBodyA->m_collisionCoefficient, m_rigidBodyB->m_collisionCoefficient);
+}
 
+float ContactManifold::GetFrictionImpulseCoefficient() const
+{
+    return sqrt(m_rigidBodyA->m_linearFrictionCoefficient * m_rigidBodyB->m_linearFrictionCoefficient);
+}
 
 
 

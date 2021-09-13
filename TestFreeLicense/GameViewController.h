@@ -9,6 +9,10 @@
 #import <UIKit/UIKit.h>
 #import <GLKit/GLKit.h>
 
-@interface GameViewController : GLKViewController
+class SceneMgr;
 
+@interface GameViewController : GLKViewController
+{
+    SceneMgr* m_sceneMgr;
+}
 @end

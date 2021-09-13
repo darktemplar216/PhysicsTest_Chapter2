@@ -12,13 +12,9 @@
 #include "Entity.hpp"
 #include "ShaderProgram.hpp"
 
-
-RenderRoutine* RenderRoutine::instance = 0;
-
-
-RenderRoutine::RenderRoutine():cubeShaderProgram(0)
+RenderRoutine::RenderRoutine()
 {
-    Init();
+    InitParams();
 }
 
 RenderRoutine::~RenderRoutine()
@@ -26,47 +22,21 @@ RenderRoutine::~RenderRoutine()
     Uninit();
 }
 
-bool RenderRoutine::IsValid()
+void RenderRoutine::InitParams()
 {
-    return instance != 0;
-}
-
-RenderRoutine* RenderRoutine::GetInstance()
-{
-    return instance;
-}
-
-RenderRoutine* RenderRoutine::CreateInstance()
-{
-    if(instance == 0)
-    {
-        instance = new RenderRoutine();
-    }
-    return instance;
-}
-
-void RenderRoutine::DestroyInstance()
-{
-    if(instance != 0)
-    {
-        delete instance;
-        instance = 0;
-    }
-}
-
-void RenderRoutine::Init()
-{
+    Uninit();
+    
     NSString* vertShaderPathname = [[NSBundle mainBundle] pathForResource:@"Shader" ofType:@"vsh"];
     NSString* fragShaderPathname = [[NSBundle mainBundle] pathForResource:@"Shader" ofType:@"fsh"];
     
     const char* fragShaderSrc = (const char *)[[NSString stringWithContentsOfFile:fragShaderPathname encoding:NSUTF8StringEncoding error:nil] UTF8String];
     const char* vertexShaderSrc = (const char *)[[NSString stringWithContentsOfFile:vertShaderPathname encoding:NSUTF8StringEncoding error:nil] UTF8String];
     
-    cubeShaderProgram = new ShaderProgram();
-    if(!cubeShaderProgram->Init(fragShaderSrc, vertexShaderSrc))
+    m_cubeShaderProgram = new ShaderProgram();
+    if(!m_cubeShaderProgram->Init(fragShaderSrc, vertexShaderSrc))
     {
-        delete cubeShaderProgram;
-        cubeShaderProgram = 0;
+        delete m_cubeShaderProgram;
+        m_cubeShaderProgram = nullptr;
         
         NSLog(@"RenderRoutine::Init: Failed to init cube shader");
     }
@@ -74,10 +44,10 @@ void RenderRoutine::Init()
 
 void RenderRoutine::Uninit()
 {
-    if(cubeShaderProgram != 0)
+    if(m_cubeShaderProgram != nullptr)
     {
-        delete cubeShaderProgram;
-        cubeShaderProgram = 0;
+        delete m_cubeShaderProgram;
+        m_cubeShaderProgram = nullptr;
     }
 }
 
@@ -86,7 +56,7 @@ void RenderRoutine::Update(double deltaTime)
     
 }
 
-void RenderRoutine::PipelineGo()
+void RenderRoutine::Render()
 {
     glClearColor(0.65f, 0.65f, 0.65f, 1.0f);
     glDepthMask(true);
@@ -109,29 +79,29 @@ bool RenderRoutine::LightsOn(ShaderProgram* program)
 {
     bool ret = false;
     
-    SceneMgr* sceneMgr = SceneMgr::GetInstance();
-    
-    if(sceneMgr != 0)
+    if(m_sceneMgr == nullptr)
     {
-        GLint locOfUniformLight1Pos = -1;
-        GLint locOfUniformLight1Diffuse = -1;
-        GLint locOfUniformLight1Specular = -1;
-        GLint locOfUniformEyePos = -1;
-        
-        if(sceneMgr->lightsOn[0]
-           && program->GetLocByName("light1Pos", SPLNT_Uniform, locOfUniformLight1Pos)
-           && program->GetLocByName("light1Diffuse", SPLNT_Uniform, locOfUniformLight1Diffuse)
-           && program->GetLocByName("light1Specular", SPLNT_Uniform, locOfUniformLight1Specular)
-           && program->GetLocByName("eyePos", SPLNT_Uniform, locOfUniformEyePos))
-        {
-            ret = true;
-            glUniform3fv(locOfUniformLight1Pos, 1, sceneMgr->lightWorldPos[0].v);
-            glUniform3fv(locOfUniformLight1Diffuse, 1, sceneMgr->lightDiffuse[0].v);
-            glUniform3fv(locOfUniformLight1Specular, 1, sceneMgr->lightSpecular[0].v);
-            glUniform3fv(locOfUniformEyePos, 1, sceneMgr->cameraPosition.v);
-        }
+        return ret;
     }
     
+    GLint locOfUniformLight1Pos = -1;
+    GLint locOfUniformLight1Diffuse = -1;
+    GLint locOfUniformLight1Specular = -1;
+    GLint locOfUniformEyePos = -1;
+
+    if(m_sceneMgr->lightsOn[0]
+       && program->GetLocByName("light1Pos", SPLNT_Uniform, locOfUniformLight1Pos)
+       && program->GetLocByName("light1Diffuse", SPLNT_Uniform, locOfUniformLight1Diffuse)
+       && program->GetLocByName("light1Specular", SPLNT_Uniform, locOfUniformLight1Specular)
+       && program->GetLocByName("eyePos", SPLNT_Uniform, locOfUniformEyePos))
+    {
+        ret = true;
+        glUniform3fv(locOfUniformLight1Pos, 1, m_sceneMgr->lightWorldPos[0].v);
+        glUniform3fv(locOfUniformLight1Diffuse, 1, m_sceneMgr->lightDiffuse[0].v);
+        glUniform3fv(locOfUniformLight1Specular, 1, m_sceneMgr->lightSpecular[0].v);
+        glUniform3fv(locOfUniformEyePos, 1, m_sceneMgr->cameraPosition.v);
+    }
+
     return ret;
 }
 
@@ -143,63 +113,59 @@ bool RenderRoutine::LightsOff(ShaderProgram* program)
 
 void RenderRoutine::GroupEntitiesGo()
 {
-    SceneMgr* sceneMgr = SceneMgr::GetInstance();
-    
-    if(SceneMgr::IsValid())
+    if(m_sceneMgr == nullptr)
     {
-        if(cubeShaderProgram != 0)
+        return;
+    }
+    
+    if(m_cubeShaderProgram != 0)
+    {
+        
+        if(isPassTransparent)
         {
+            /**/
+            glEnable(GL_BLEND);
+            glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
             
-            if(isPassTransparent)
-            {
-                /**/
-                glEnable(GL_BLEND);
-                glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-                
-                //glDisable(GL_DEPTH_TEST);
-                glDepthMask(false);
-                //glDepthFunc(GL_ALWAYS);
-            }
-            else
-            {
-                glDisable(GL_BLEND);
-                
-                /**/
-                glEnable(GL_DEPTH_TEST);
-                glDepthMask(true);
-                glDepthFunc(GL_LESS);                
-            }
-            
-            cubeShaderProgram->EnableShader();
-            
-            LightsOn(cubeShaderProgram);
-
-            std::list<Entity*>::iterator iterBegin = sceneMgr->entityList.begin();
-            std::list<Entity*>::iterator iterEnd = sceneMgr->entityList.end();
-            while(iterBegin != iterEnd)
-            {
-                Entity* entity = *iterBegin;
-                if(isPassTransparent == fabs(entity->baseColor.a - 1.0f) > 0.001f )
-                {
-                    entity->Draw(cubeShaderProgram);
-                }
-                iterBegin++;
-            }
-            
-            LightsOff(cubeShaderProgram);
-            
-            cubeShaderProgram->DisableShader();
-            
-            glDisable(GL_BLEND);
+            //glDisable(GL_DEPTH_TEST);
+            glDepthMask(false);
+            //glDepthFunc(GL_ALWAYS);
         }
         else
         {
-            NSLog(@"RenderRoutine::GroupEntitiesGo: cubeShaderProgram invalid");
+            glDisable(GL_BLEND);
+            
+            /**/
+            glEnable(GL_DEPTH_TEST);
+            glDepthMask(true);
+            glDepthFunc(GL_LESS);
         }
+        
+        m_cubeShaderProgram->EnableShader();
+        
+        LightsOn(m_cubeShaderProgram);
+
+        std::list<Entity*>::iterator iterBegin = m_sceneMgr->m_entityList.begin();
+        std::list<Entity*>::iterator iterEnd = m_sceneMgr->m_entityList.end();
+        while(iterBegin != iterEnd)
+        {
+            Entity* entity = *iterBegin;
+            if(isPassTransparent == fabs(entity->baseColor.a - 1.0f) > 0.001f )
+            {
+                entity->Draw(m_cubeShaderProgram);
+            }
+            iterBegin++;
+        }
+        
+        LightsOff(m_cubeShaderProgram);
+        
+        m_cubeShaderProgram->DisableShader();
+        
+        glDisable(GL_BLEND);
     }
     else
     {
-        NSLog(@"RenderRoutine::GroupEntitiesGo: SceneMgr invalid");
+        NSLog(@"RenderRoutine::GroupEntitiesGo: cubeShaderProgram invalid");
     }
 }
 

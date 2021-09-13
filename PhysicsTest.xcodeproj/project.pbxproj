@@ -7,7 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		D428E7E41EDEE9E7002839FA /* ContactReport.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D428E7E21EDEE9E7002839FA /* ContactReport.cpp */; };
+		70F49CBF26E51B9500A6F580 /* PhysicsDefs.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 70F49CBE26E51B9500A6F580 /* PhysicsDefs.cpp */; };
+		D428E7E41EDEE9E7002839FA /* ContactManifold.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D428E7E21EDEE9E7002839FA /* ContactManifold.cpp */; };
 		D428E7E71EDEEA8C002839FA /* G_GjkEpa.mm in Sources */ = {isa = PBXBuildFile; fileRef = D428E7E51EDEEA8C002839FA /* G_GjkEpa.mm */; };
 		D42A26021EDC4297001D200B /* Entity.mm in Sources */ = {isa = PBXBuildFile; fileRef = D42A26001EDC4297001D200B /* Entity.mm */; };
 		D42A26151EDC4D63001D200B /* RigidBody.mm in Sources */ = {isa = PBXBuildFile; fileRef = D42A26131EDC4D63001D200B /* RigidBody.mm */; };
@@ -49,8 +50,10 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		D428E7E21EDEE9E7002839FA /* ContactReport.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ContactReport.cpp; path = Physics/ContactReport.cpp; sourceTree = "<group>"; };
-		D428E7E31EDEE9E7002839FA /* ContactReport.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = ContactReport.hpp; path = Physics/ContactReport.hpp; sourceTree = "<group>"; };
+		70F49CBA26E51AE200A6F580 /* PhysicsDefs.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PhysicsDefs.h; sourceTree = "<group>"; };
+		70F49CBE26E51B9500A6F580 /* PhysicsDefs.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = PhysicsDefs.cpp; sourceTree = "<group>"; };
+		D428E7E21EDEE9E7002839FA /* ContactManifold.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ContactManifold.cpp; path = Physics/ContactManifold.cpp; sourceTree = "<group>"; };
+		D428E7E31EDEE9E7002839FA /* ContactManifold.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = ContactManifold.hpp; path = Physics/ContactManifold.hpp; sourceTree = "<group>"; };
 		D428E7E51EDEEA8C002839FA /* G_GjkEpa.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = G_GjkEpa.mm; path = Physics/G_GjkEpa.mm; sourceTree = "<group>"; };
 		D428E7E61EDEEA8C002839FA /* G_GjkEpa.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = G_GjkEpa.h; path = Physics/G_GjkEpa.h; sourceTree = "<group>"; };
 		D42A26001EDC4297001D200B /* Entity.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = Entity.mm; path = Logic/Entity.mm; sourceTree = "<group>"; };
@@ -154,8 +157,10 @@
 				D42A26141EDC4D63001D200B /* RigidBody.hpp */,
 				D42A262C1EDC74E9001D200B /* PhysicsRoutine.mm */,
 				D42A262D1EDC74E9001D200B /* PhysicsRoutine.hpp */,
-				D428E7E21EDEE9E7002839FA /* ContactReport.cpp */,
-				D428E7E31EDEE9E7002839FA /* ContactReport.hpp */,
+				D428E7E21EDEE9E7002839FA /* ContactManifold.cpp */,
+				D428E7E31EDEE9E7002839FA /* ContactManifold.hpp */,
+				70F49CBA26E51AE200A6F580 /* PhysicsDefs.h */,
+				70F49CBE26E51B9500A6F580 /* PhysicsDefs.cpp */,
 			);
 			name = Physics;
 			sourceTree = "<group>";
@@ -358,6 +363,7 @@
 			developmentRegion = English;
 			hasScannedForEncodings = 0;
 			knownRegions = (
+				English,
 				en,
 				Base,
 			);
@@ -414,9 +420,10 @@
 				D42A26321EDC7530001D200B /* SceneMgr.mm in Sources */,
 				D428E7E71EDEEA8C002839FA /* G_GjkEpa.mm in Sources */,
 				D42A26371EDEBFA7001D200B /* GMath.mm in Sources */,
+				70F49CBF26E51B9500A6F580 /* PhysicsDefs.cpp in Sources */,
 				D4C8D5A01E69B93C000A0351 /* GameViewController.mm in Sources */,
 				D42A262E1EDC74E9001D200B /* PhysicsRoutine.mm in Sources */,
-				D428E7E41EDEE9E7002839FA /* ContactReport.cpp in Sources */,
+				D428E7E41EDEE9E7002839FA /* ContactManifold.cpp in Sources */,
 				D42A26151EDC4D63001D200B /* RigidBody.mm in Sources */,
 				D42A26281EDC72B4001D200B /* ShaderProgram.mm in Sources */,
 				D42A26021EDC4297001D200B /* Entity.mm in Sources */,
@@ -576,6 +583,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.taowei.Chapter2;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
+				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
 		};
@@ -590,6 +598,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.taowei.Chapter2;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
+				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Release;
 		};

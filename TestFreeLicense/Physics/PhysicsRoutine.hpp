@@ -11,62 +11,82 @@
 
 #include <stdio.h>
 #include "RigidBody.hpp"
-#include "ContactReport.hpp"
+#include "ContactManifold.hpp"
 #include "G_GjkEpa.h"
 
+class SceneMgr;
 class Entity;
 
 class PhysicsRoutine
 {
+public:
+    
+    friend class RigidBody;
+    
 private:
-    static PhysicsRoutine* instance;
+
+
+    btGjkEpaSolver2 m_gjkEpaSolver;
+    
+    std::vector<RigidBody*> m_rigidBodies;
+    
+    std::map<int, RigidBody*> m_rigidBodyMap;
+    
+    std::list<ContactManifold*> m_mainifolds;
+    
+    int m_rigidBodyUniqueIdAccum = 0;
+    int FetchRigidBodyUID() { return ++m_rigidBodyUniqueIdAccum; }
+    
+    Vector3 m_gravityAcc;
+
+public:
+    
+    void AddRigidBody(RigidBody* rigidBody);
+    RigidBody* GetRigidBody(int id);
+    void RemoveRigidBody(RigidBody* rigidBody);
+    void RemoveRigidBody(int id);
+    void RemoveAllRigidBodies();
+    const std::vector<RigidBody*>& getRigidBodies() const;
+    
+public:
     
     PhysicsRoutine();
+    virtual ~PhysicsRoutine();
     
-    btGjkEpaSolver2 gjkEpaSolver;
+    void InitParams(const Vector3& gravityAcc);
     
-    std::list<Entity*> physicalEntities;
-    
-    std::list<ContactManifold*> manifolds;
-    
-public:
-    
-    ~PhysicsRoutine();
-    
-    static bool IsValid();
-    static PhysicsRoutine* GetInstance();
-    static PhysicsRoutine* CreateInstance();
-    static void DestroyInstance();
-    
-    void Init();
-    void Uninit();
-    
-    void RemoveRelatedManifold(Entity* entity);
-    void AddOrUpdateManifold(btGjkEpaSolver2::sResults& resf, RigidDataIndex dataIndex, Entity* entityA, Entity* entityB);
-    bool FindAllMyManifolds(const RigidBody* me, std::list<const ContactManifold*>& relatedManifolds);
-    
-public:
     void Update(double deltaTime, long frame);
+
+    void AddOrUpdateManifold(btGjkEpaSolver2::sResults& resf, RigidDataIndex dataIndex, Entity* entityA, Entity* entityB);
     
 private:
-    bool IsEntityAHasCheckedWithEntityB(Entity* a, Entity* b);
+    
+    void OnRigidBodyRemoved(RigidBody* rigidBody);
     
 private:
-    void Finalize(double deltaTime, RigidDataIndex from, RigidDataIndex to);
     
-    void InitRoutine();
     void UpdateVelocities(double deltaTime, RigidDataIndex from, RigidDataIndex to);
+    
     void UpdateManifolds(RigidDataIndex dataIndex);
+    
     void WarmStart(double deltaTime, RigidDataIndex dataIndex);
-    void UpdatePosAndRots(double deltaTime, RigidDataIndex from, RigidDataIndex to);
+    void WarmContacts(RigidDataIndex dataIndex, ContactManifold* manifold, double deltaTime);
+    
+    void UpdatePosAndRotsAndCheckDormancy(double deltaTime, RigidDataIndex from, RigidDataIndex to);
     
     void HandleVelocityConstraints(double deltaTime, RigidDataIndex from, RigidDataIndex to);
-    void HandlePositionConstraints(double deltaTime, RigidDataIndex from, RigidDataIndex to);
     
-private:
-    void HandleContactForVelocityConstraints(RigidDataIndex from, RigidDataIndex to, ContactPoint& contact, double deltaTime);
-    void HandleContactForPositionConstraints(RigidDataIndex from, RigidDataIndex to, ContactPoint& contact, double deltaTime);
-    void WarmContact(RigidDataIndex dataIndex, ContactPoint& contact, double deltaTime);
+    bool CheckIfRigidBodyCanBeDormant(RigidBody* rigidBody, RigidDataIndex dataIndex);
+    
+    void HandleManifoldForVelocityConstraints(RigidDataIndex from, RigidDataIndex to, ContactManifold* manifold, double deltaTime);
+    
+    bool FindAllMyManifolds(const RigidBody* me, std::vector<const ContactManifold*>& relatedManiforlds);
+    void RemoveRelatedManifolds(RigidBody* rigidBody);
+    void RemoveAllManifolds();
+    bool IsAHasCheckedWithB(RigidBody* a, RigidBody* b);
+    void AddOrUpdateManifold(btGjkEpaSolver2::sResults& result, RigidDataIndex dataIndex, RigidBody* rigidBodyA, RigidBody* rigidBodyB);
+    
+    
 };
 
 

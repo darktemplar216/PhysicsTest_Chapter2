@@ -29,6 +29,7 @@ const Vector3 sVec3AxisNegY(0, -1, 0);
 
 const Vector3 sVec3AxisZ(0, 0, 1);
 
+extern const Vector3 sVec3Gravity(0, -98.0f, 0);
 
 const GLKVector3 sGLKVec3Zero{0, 0, 0};
 

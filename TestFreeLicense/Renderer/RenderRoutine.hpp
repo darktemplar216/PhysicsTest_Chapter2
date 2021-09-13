@@ -13,35 +13,30 @@
 #include "GMath.h"
 
 class ShaderProgram;
+class SceneMgr;
 
 class RenderRoutine
 {
-private:
-    static RenderRoutine* instance;
-    
-    RenderRoutine();
+    friend class SceneMgr;
     
 public:
     
-    ~RenderRoutine();
+    RenderRoutine();
+    virtual ~RenderRoutine();
     
-    static bool IsValid();
-    static RenderRoutine* GetInstance();
-    static RenderRoutine* CreateInstance();
-    static void DestroyInstance();
-    
-    void Init();
+    void InitParams();
     void Uninit();
     
 private:
     
-    ShaderProgram* cubeShaderProgram;
+    ShaderProgram* m_cubeShaderProgram = nullptr;
+    SceneMgr* m_sceneMgr = nullptr;
     
 public:
     
     void Update(double deltaTime);
     
-    void PipelineGo();
+    void Render();
     
 private:
     

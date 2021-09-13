@@ -49,6 +49,8 @@ extern const Vector3 sVec3AxisNegY;
 
 extern const Vector3 sVec3AxisZ;
 
+extern const Vector3 sVec3Gravity;
+
 
 extern const GLKVector3 sGLKVec3Zero;
 

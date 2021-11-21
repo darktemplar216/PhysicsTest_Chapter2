@@ -38,36 +38,10 @@ const float shiness = 2.0;
 
 uniform vec4 ambientMaterialColor;
 
-vec3 specularLighting(in vec3 N, in vec3 L, in vec3 V)
-{
-    float specularTerm = 0.0;
-    
-    // calculate specular reflection only if
-    // the surface is oriented to the light source
-    if(dot(N, L) > 0.0)
-    {
-        // half vector
-        vec3 H = normalize(L + V);
-        specularTerm = pow(dot(N, H), shiness);
-    }
-    return light1Specular.rgb * specularTerm;
-}
-
-// returns intensity of diffuse reflection
-vec3 diffuseLighting(in vec3 N, in vec3 L)
-{
-    // calculation as for Lambertian reflection
-    float diffuseTerm = clamp(dot(N, L), 0.0, 1.0) ;
-    return light1Diffuse.rgb * diffuseTerm;
-}
-
 void main()
 {
     mat4 mv = viewMatrix * modelMatrix;
     mat4 mvp = projectionMatrix * viewMatrix * modelMatrix;
-    
-    //vec4 dummy = invMV * vec4(position, 1);
-    
     mat3 modelNoTrans = mat3(modelMatrix[0][0], modelMatrix[0][1], modelMatrix[0][2],
                              modelMatrix[1][0], modelMatrix[1][1], modelMatrix[1][2],
                              modelMatrix[2][0], modelMatrix[2][1], modelMatrix[2][2]);

@@ -66,7 +66,7 @@ void main()
     mat4 mv = viewMatrix * modelMatrix;
     mat4 mvp = projectionMatrix * viewMatrix * modelMatrix;
     
-    vec4 dummy = invMV * vec4(position, 1);
+    //vec4 dummy = invMV * vec4(position, 1);
     
     mat3 modelNoTrans = mat3(modelMatrix[0][0], modelMatrix[0][1], modelMatrix[0][2],
                              modelMatrix[1][0], modelMatrix[1][1], modelMatrix[1][2],
@@ -76,7 +76,7 @@ void main()
     vec3 o_toLight = normalize(light1Pos - (modelMatrix * vec4(position, 1)).xyz);
     vec3 o_toCamera	= normalize(eyePos - (modelMatrix * vec4(position, 1)).xyz);
     
-    colorVarying.rgb = ambientMaterialColor.rgb * dot(o_normal, o_toLight);
+    colorVarying.rgb = ambientMaterialColor.rgb * clamp(dot(o_normal, o_toLight), 0.0, 1.0);
     colorVarying.a = ambientMaterialColor.a;
     
     gl_Position = mvp * vec4(position, 1);

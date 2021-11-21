@@ -120,7 +120,6 @@ void RenderRoutine::GroupEntitiesGo()
     
     if(m_cubeShaderProgram != 0)
     {
-        
         if(isPassTransparent)
         {
             /**/

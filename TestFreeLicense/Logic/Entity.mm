@@ -93,7 +93,7 @@ void Entity::Draw(const ShaderProgram* program)
     GLint locOfUniformViewMatrix = -1;
     GLint locOfUniformProjectionMatrix = -1;
     GLint locOfUniformAmbientMatColor = -1;
-    GLint locOfInvMV = -1;
+    //GLint locOfInvMV = -1;
     
     GLint locOfAttrPosition = -1;
     GLint locOfAttrNormal = -1;
@@ -102,7 +102,7 @@ void Entity::Draw(const ShaderProgram* program)
        && program->GetLocByName("viewMatrix", SPLNT_Uniform, locOfUniformViewMatrix)
        && program->GetLocByName("projectionMatrix", SPLNT_Uniform, locOfUniformProjectionMatrix)
        && program->GetLocByName("ambientMaterialColor", SPLNT_Uniform, locOfUniformAmbientMatColor)
-       && program->GetLocByName("invMV", SPLNT_Uniform, locOfInvMV)
+       //&& program->GetLocByName("invMV", SPLNT_Uniform, locOfInvMV)
        
        && program->GetLocByName("position", SPLNT_Attribute, locOfAttrPosition)
        && program->GetLocByName("normal", SPLNT_Attribute, locOfAttrNormal)
@@ -120,8 +120,8 @@ void Entity::Draw(const ShaderProgram* program)
         glUniformMatrix4fv(locOfUniformViewMatrix, 1, 0, m_sceneMgr->baseViewMatrix.m);
         glUniformMatrix4fv(locOfUniformProjectionMatrix, 1, 0, m_sceneMgr->baseProjectionMatrix.m);
         
-        GLKMatrix4 invMV = GLKMatrix4Invert(GLKMatrix4Multiply(m_sceneMgr->baseViewMatrix, curModelMatrix), 0);
-        glUniformMatrix4fv(locOfInvMV, 1, 0, invMV.m);
+        //GLKMatrix4 invMV = GLKMatrix4Invert(GLKMatrix4Multiply(m_sceneMgr->baseViewMatrix, curModelMatrix), 0);
+        //glUniformMatrix4fv(locOfInvMV, 1, 0, invMV.m);
 
         //position
         glBindBuffer(GL_ARRAY_BUFFER, vertexVBO->loc);

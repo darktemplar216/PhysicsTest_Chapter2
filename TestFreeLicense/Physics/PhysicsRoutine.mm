@@ -225,7 +225,9 @@ void PhysicsRoutine::Update(double deltaTime, long frame)
     const float smoothedDeltaTime = 0.01f;
     const int velocityConstrantIterTimes = 10;
     
-    while(deltaTime > 0)
+    m_simuationTimeRemaining += deltaTime;
+    
+    while(m_simuationTimeRemaining > smoothedDeltaTime)
     {
         UpdateVelocities(smoothedDeltaTime, RDI_real, RDI_real);
         UpdateManifolds(RDI_real);
@@ -239,7 +241,7 @@ void PhysicsRoutine::Update(double deltaTime, long frame)
         
         UpdatePosAndRotsAndCheckDormancy(smoothedDeltaTime, RDI_real, RDI_real);
         
-        deltaTime -= smoothedDeltaTime;
+        m_simuationTimeRemaining -= smoothedDeltaTime;
     }
 }
 
@@ -294,9 +296,10 @@ void PhysicsRoutine::HandleManifoldForVelocityConstraints(RigidDataIndex from, R
         float biasPenetrationDepth = 0.0f;
         if((-contact.penetrationDistance) > PENETRATION_TOLERANCE && deltaTime > 0)
         {
-            float erpScalar = fmax(0.0f, (-contact.penetrationDistance) - PENETRATION_TOLERANCE) / PENETRATION_TOLERANCE;
+            //float erpScalar = fmax(0.0f, (-contact.penetrationDistance) - PENETRATION_TOLERANCE) / PENETRATION_TOLERANCE;
             //no reason, I just made this thing up
-            erpScalar =fmax(0.1527f, fmin(erpScalar, 1.234f));
+            //erpScalar =fmax(0.1527f, fmin(erpScalar, 1.234f));
+            float erpScalar = 1.0f;
             float erp= 0.2f * erpScalar;
             biasPenetrationDepth = -(erp / deltaTime) * fmax(0.0f, (-contact.penetrationDistance) - PENETRATION_TOLERANCE);
         }
@@ -657,7 +660,7 @@ bool PhysicsRoutine::CheckIfRigidBodyCanBeDormant(RigidBody* rigidBody, RigidDat
     RigidData& data = rigidBody->m_datas[dataIndex];
     if( !rigidBody->m_isStatic && !data.m_isDormant)
     {
-        if(data.m_velocity.lengthSquared()<=DORMAINT_THRESHOLD && data.m_angularVel.lengthSquared() <= DORMAINT_THRESHOLD)
+        if(data.m_velocity.lengthSquared() <= DORMAINT_VELOCITY_THRESHOLD && data.m_angularVel.lengthSquared() <= DORMAINT_VELOCITY_THRESHOLD)
         {
             std::vector<const ContactManifold*> relatedManifold;
             if (FindAllMyManifolds(rigidBody, relatedManifold))
@@ -672,7 +675,7 @@ bool PhysicsRoutine::CheckIfRigidBodyCanBeDormant(RigidBody* rigidBody, RigidDat
                     for (int i=0; i<manifold->m_contactPointCount; i++)
                     {
                         const ContactPoint& point = manifold->contactPoints[i];
-                        isCanBeDormant &= (fabs(point.penetrationDistance) < PENETRATION_TOLERANCE);
+                        isCanBeDormant &= (fabs(point.penetrationDistance) < DORMAINT_PENETRATION_THRESHOLD);
                         if( !isCanBeDormant)
                         {
                             break;

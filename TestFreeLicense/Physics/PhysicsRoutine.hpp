@@ -38,6 +38,8 @@ private:
     int FetchRigidBodyUID() { return ++m_rigidBodyUniqueIdAccum; }
     
     Vector3 m_gravityAcc;
+    
+    float m_simuationTimeRemaining = 0;
 
 public:
     

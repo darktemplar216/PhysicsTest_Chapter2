@@ -118,9 +118,9 @@ void RigidBody::InitParamsAsACube(const string& name,
         float height = scale.y * 1.0f;
         float width = scale.z * 1.0f;
         
-        m_inertiaLocal = Matrix4(m_mass * 0.083333f * (height * height + width * width), 0, 0, 0,
-                                 0, m_mass * 0.083333f * (length * length + width * width), 0, 0,
-                                 0, 0, m_mass * 0.083333f * (length * length + height * height), 0,
+        m_inertiaLocal = Matrix4(m_mass * 0.33333f * (height * height + width * width), 0, 0, 0,
+                                 0, m_mass * 0.33333f * (length * length + width * width), 0, 0,
+                                 0, 0, m_mass * 0.33333f * (length * length + height * height), 0,
                                  0, 0, 0, 1.0f);
         m_inertiaLocalInverse = m_inertiaLocal.inverse();
     }
@@ -133,9 +133,7 @@ void RigidBody::CalculateEnergy(RigidData& data)
 {
     float linearSpeed = data.m_velocity.length();
     float kineticEnergy = 0.5f * m_mass * linearSpeed * linearSpeed;
-    
     float gravitationalEnergy = m_mass * fmax(data.m_position.y - G_ZERO_HEIGHT, 0.0f);
-    
     data.m_energy = kineticEnergy + gravitationalEnergy;
 }
 
@@ -160,60 +158,4 @@ Vector3 RigidBody::getFarthestVectAtDir(const Vector3& dir, const Matrix4* trans
     }
     return ret;
 }
-
-/*
-bool RigidBody::CheckIfCanBeDormant(RigidDataIndex dataIndex)
-{
-    bool ret = false;
-    
-    RigidData& data = m_datas[dataIndex];
-    
-    if(!m_isStatic && !data.isDormant)
-    {
-        if(data.m_velocity.lengthSquared() <= DORMAINT_THRESHOLD && data.m_angularVel.lengthSquared() <= DORMAINT_THRESHOLD)
-        {
-            std::list<const ContactManifold*> relatedManifold;
-            if(PhysicsRoutine::IsValid() && PhysicsRoutine::GetInstance()->FindAllMyManifolds(this, relatedManifold))
-            {
-                bool isCanBeDormant = true;
-                
-                std::list<const ContactManifold*>::iterator iterManifoldBegin = relatedManifold.begin();
-                std::list<const ContactManifold*>::iterator iterManifoldEnd = relatedManifold.end();
-                while(iterManifoldBegin != iterManifoldEnd)
-                {
-                    const ContactManifold* manifold = *iterManifoldBegin;
-                    
-                    for(int i=0; i<manifold->contactPointCount; i++)
-                    {
-                        const ContactPoint& point = manifold->contactPoints[i];
-                        
-                        isCanBeDormant &= (fabs(point.penetrationDistance) < (PENETRATION_TOLERANCE + EPSILON_FLT));
-                        if(!isCanBeDormant)
-                        {
-                            break;
-                        }
-                    }
-                    
-                    if(!isCanBeDormant)
-                    {
-                        break;
-                    }
-                    
-                    iterManifoldBegin++;
-                }
-                
-                if(isCanBeDormant)
-                {
-                    ret = true;
-                    data.isDormant = true;
-                    data.m_velocity = sVec3Zero;
-                    data.m_angularVel = sVec3Zero;
-                }
-            }
-        }
-    }
-    
-    return ret;
-}
-*/
 

@@ -281,7 +281,7 @@ void PhysicsRoutine::HandleManifoldForVelocityConstraints(RigidDataIndex from, R
     Matrix4 inertialWorldInverseA = dataA.MakeRMatrix() * (dataA.MakeRMatrix().transpose() * rigidBodyA->m_inertiaLocalInverse);
     Matrix4 inertialWorldInverseB = dataB.MakeRMatrix() * (dataB.MakeRMatrix().transpose() * rigidBodyB->m_inertiaLocalInverse);
     
-    float combinedImpu1seCoefficient = manifold->GetCollisionImpulseCoefficient();
+    float combinedImpulseCoefficient = manifold->GetCollisionImpulseCoefficient();
     float combinedFrictionCoefficient = manifold->GetFrictionImpulseCoefficient();
     
     Vector3 combinedNormalForFriction;
@@ -316,7 +316,7 @@ void PhysicsRoutine::HandleManifoldForVelocityConstraints(RigidDataIndex from, R
         
         float normalImpulseValA = normal.dot(inertialWorldInverseA.transform3x3(relativePosA * normal) * relativePosA);
         float normalImpulseValB = normal.dot(inertialWorldInverseB.transform3x3(relativePosB * normal) * relativePosB);
-        float normalImpulseVal = -((1.000f + combinedImpu1seCoefficient) * relativeVelocityValOnNormal + biasPenetrationDepth) /
+        float normalImpulseVal = -((1.000f + combinedImpulseCoefficient) * relativeVelocityValOnNormal + biasPenetrationDepth) /
             (rigidBodyA->m_oneDivMass + rigidBodyB->m_oneDivMass + normalImpulseValA + normalImpulseValB);
         
         float oldNormalImpulse = contact.totalNormalImpulse;
@@ -450,7 +450,7 @@ void PhysicsRoutine::WarmContacts(RigidDataIndex dataIndex, ContactManifold* man
         if( !rigidBodyB->m_isStatic && !dataB.m_isDormant)
         {
             dataB.m_velocity += normalImpulse * rigidBodyB->m_oneDivMass;
-            dataB.m_angularVel += normalImpulseVal * inertialWorldInverseB.transform3x3(relativePosB*normal);
+            dataB.m_angularVel += normalImpulseVal * inertialWorldInverseB.transform3x3(relativePosB * normal);
         }
         //--collision impulse end
         

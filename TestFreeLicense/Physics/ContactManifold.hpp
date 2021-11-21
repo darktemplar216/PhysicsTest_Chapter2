@@ -60,7 +60,7 @@ public:
     RigidBody* m_rigidBodyB;
     
     //碰撞点们//
-    ContactPoint contactPoints[CONTACT_POINT_COUNT];
+    ContactPoint m_contactPoints[CONTACT_POINT_COUNT];
     int m_contactPointCount = 0;
     
     void UpdateContacts(RigidDataIndex dataIndex);

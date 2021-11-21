@@ -222,23 +222,33 @@ void PhysicsRoutine::AddOrUpdateManifold(btGjkEpaSolver2::sResults& result, Rigi
 
 void PhysicsRoutine::Update(double deltaTime, long frame)
 {
+    // 我们每个时间片 为 10毫秒
     const float smoothedDeltaTime = 0.01f;
+    
+    // 每个时间片里面迭代10次计算
     const int velocityConstrantIterTimes = 10;
     
     m_simuationTimeRemaining += deltaTime;
     
+    // 这个渲染帧里面我们应该跑几次物理帧
     while(m_simuationTimeRemaining > smoothedDeltaTime)
     {
+        // 更新速度信息
         UpdateVelocities(smoothedDeltaTime, RDI_real, RDI_real);
+        
+        // 更新碰撞点信息
         UpdateManifolds(RDI_real);
         
+        // “预热”，这个据称可以增加计算结果的稳定性，尽快得出dormant，这个比较玄学
         WarmStart(smoothedDeltaTime, RDI_real);
         
+        // 开始迭代，算10次
         for (int i=0; i<velocityConstrantIterTimes; i++)
         {
             HandleVelocityConstraints(smoothedDeltaTime, RDI_real, RDI_real);
         }
         
+        // 更新位置信息并看看是否有刚体可以进入 dromant 状态
         UpdatePosAndRotsAndCheckDormancy(smoothedDeltaTime, RDI_real, RDI_real);
         
         m_simuationTimeRemaining -= smoothedDeltaTime;
@@ -281,7 +291,7 @@ void PhysicsRoutine::HandleManifoldForVelocityConstraints(RigidDataIndex from, R
     
     for (int i=0; i<manifold->m_contactPointCount; i++)
     {
-        ContactPoint& contact = manifold->contactPoints[i];
+        ContactPoint& contact = manifold->m_contactPoints[i];
         
         //let normal point from a-→b
         Vector3 normal = -dataB.m_rotation.matrix() * contact.localNormalInBSpace;
@@ -419,7 +429,7 @@ void PhysicsRoutine::WarmContacts(RigidDataIndex dataIndex, ContactManifold* man
     
     for (int i=0; i< manifold->m_contactPointCount; i++)
     {
-        ContactPoint& contact = manifold->contactPoints[i];
+        ContactPoint& contact = manifold->m_contactPoints[i];
         
         isAtLeastOneContactPointIsAlive |= contact.isAlive;
         
@@ -674,7 +684,7 @@ bool PhysicsRoutine::CheckIfRigidBodyCanBeDormant(RigidBody* rigidBody, RigidDat
                     const ContactManifold* manifold = *iterManifoldBegin;
                     for (int i=0; i<manifold->m_contactPointCount; i++)
                     {
-                        const ContactPoint& point = manifold->contactPoints[i];
+                        const ContactPoint& point = manifold->m_contactPoints[i];
                         isCanBeDormant &= (fabs(point.penetrationDistance) < DORMAINT_PENETRATION_THRESHOLD);
                         if( !isCanBeDormant)
                         {

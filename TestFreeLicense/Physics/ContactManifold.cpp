@@ -13,7 +13,7 @@ void ContactManifold::UpdateContacts(RigidDataIndex dataIndex)
 {
     for(int i=0; i<m_contactPointCount; i++)
     {
-        ContactPoint& point = contactPoints[i];
+        ContactPoint& point = m_contactPoints[i];
 
         Matrix4 localToWorldA = m_rigidBodyA->m_datas[dataIndex].MakeTRSMatrix();
         Matrix4 localToWorldB = m_rigidBodyB->m_datas[dataIndex].MakeTRSMatrix();
@@ -35,7 +35,7 @@ void ContactManifold::UpdateContacts(RigidDataIndex dataIndex)
         {
             for(int shift = i; shift<CONTACT_POINT_COUNT - 1; shift++)
             {
-                contactPoints[shift] = contactPoints[shift + 1];
+                m_contactPoints[shift] = m_contactPoints[shift + 1];
             }
             m_contactPointCount--;
         }
@@ -91,7 +91,7 @@ void ContactManifold::TryToAddNewContact(RigidDataIndex dataIndex,
         newCPoint.penetrationDistance = result.distance;
         
         m_contactPointCount++;
-        contactPoints[m_contactPointCount - 1] = newCPoint;
+        m_contactPoints[m_contactPointCount - 1] = newCPoint;
         
         if(m_contactPointCount == CONTACT_POINT_COUNT)
         {
@@ -106,7 +106,7 @@ bool ContactManifold::IfShouldAddNewContactPoint(RigidDataIndex dataIndex, const
     
     for(int i=0; i<m_contactPointCount; i++)
     {
-        ContactPoint& point = contactPoints[i];
+        ContactPoint& point = m_contactPoints[i];
         
         float disA = (candidate.witnesses[0] -  point.globalWittnessPointA).lengthSquared();
         float disB = (candidate.witnesses[1] -  point.globalWittnessPointB).lengthSquared();
@@ -127,7 +127,7 @@ void ContactManifold::RearrengeContactPoints()
     int deepestIndex = 0;
     for(int i=0; i<m_contactPointCount; i++)
     {
-        ContactPoint& point = contactPoints[i];
+        ContactPoint& point = m_contactPoints[i];
         if(point.penetrationDistance < maxDepth)
         {
             deepestIndex = i;
@@ -135,9 +135,9 @@ void ContactManifold::RearrengeContactPoints()
         }
     }
     
-    ContactPoint& newCPoint = contactPoints[CONTACT_POINT_COUNT - 1];
+    ContactPoint& newCPoint = m_contactPoints[CONTACT_POINT_COUNT - 1];
     int indexToRemove = GetIndexToRemove(deepestIndex, newCPoint.localWittnessPointA);
-    contactPoints[indexToRemove] = newCPoint;
+    m_contactPoints[indexToRemove] = newCPoint;
     m_contactPointCount = CONTACT_POINT_COUNT - 1;
 }
 
@@ -163,33 +163,33 @@ int ContactManifold::GetIndexToRemove(int indexMaxPenetration, const Vector3& ne
     
     if (indexMaxPenetration != 0) {
         // Compute the area
-        Vector3 vector1 = newPoint - contactPoints[1].globalWittnessPointA;
-        Vector3 vector2 = contactPoints[3].globalWittnessPointA -
-        contactPoints[2].globalWittnessPointA;
+        Vector3 vector1 = newPoint - m_contactPoints[1].globalWittnessPointA;
+        Vector3 vector2 = m_contactPoints[3].globalWittnessPointA -
+        m_contactPoints[2].globalWittnessPointA;
         Vector3 crossProduct = vector1.cross(vector2);
         area0 = crossProduct.lengthSquared();
     }
     if (indexMaxPenetration != 1) {
         // Compute the area
-        Vector3 vector1 = newPoint - contactPoints[0].globalWittnessPointA;
-        Vector3 vector2 = contactPoints[3].globalWittnessPointA -
-        contactPoints[2].globalWittnessPointA;
+        Vector3 vector1 = newPoint - m_contactPoints[0].globalWittnessPointA;
+        Vector3 vector2 = m_contactPoints[3].globalWittnessPointA -
+        m_contactPoints[2].globalWittnessPointA;
         Vector3 crossProduct = vector1.cross(vector2);
         area1 = crossProduct.lengthSquared();
     }
     if (indexMaxPenetration != 2) {
         // Compute the area
-        Vector3 vector1 = newPoint - contactPoints[0].globalWittnessPointA;
-        Vector3 vector2 = contactPoints[3].globalWittnessPointA -
-        contactPoints[1].globalWittnessPointA;
+        Vector3 vector1 = newPoint - m_contactPoints[0].globalWittnessPointA;
+        Vector3 vector2 = m_contactPoints[3].globalWittnessPointA -
+        m_contactPoints[1].globalWittnessPointA;
         Vector3 crossProduct = vector1.cross(vector2);
         area2 = crossProduct.lengthSquared();
     }
     if (indexMaxPenetration != 3) {
         // Compute the area
-        Vector3 vector1 = newPoint - contactPoints[0].globalWittnessPointA;
-        Vector3 vector2 = contactPoints[2].globalWittnessPointA -
-        contactPoints[1].globalWittnessPointA;
+        Vector3 vector1 = newPoint - m_contactPoints[0].globalWittnessPointA;
+        Vector3 vector2 = m_contactPoints[2].globalWittnessPointA -
+        m_contactPoints[1].globalWittnessPointA;
         Vector3 crossProduct = vector1.cross(vector2);
         area3 = crossProduct.lengthSquared();
     }

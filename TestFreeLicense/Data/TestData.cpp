@@ -10,8 +10,7 @@
 #include "TestData.h"
 
 const float TestData::cubeVertices[108] = {
-    // Data layout for each line below is:
-    // positionX, positionY, positionZ,     normalX, normalY, normalZ,
+
     0.5f, -0.5f, -0.5f,
     0.5f, 0.5f, -0.5f,
     0.5f, -0.5f, 0.5f,

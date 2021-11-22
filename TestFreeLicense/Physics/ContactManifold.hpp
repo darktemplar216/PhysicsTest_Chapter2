@@ -54,9 +54,7 @@ class ContactManifold
 {
 public:
     
-    //实体A，注意这里这是记录A和B碰撞了，它们实际碰撞点里面记录的entityA entityB才代表用来计算碰撞的方向//
     RigidBody* m_rigidBodyA;
-    //实体B，注意这里这是记录A和B碰撞了，它们实际碰撞点里面记录的entityA entityB才代表用来计算碰撞的方向//
     RigidBody* m_rigidBodyB;
     
     //碰撞点们//
